@@ -2,8 +2,8 @@
 
 - **分支**：`kuoleroy/node-detail-mdx`
 - **worktree**：`E:\wk\nodedetail`
-- **波次**：第二波（代码可先写；要看效果需 `nodes` 有数据）
-- **前置**：弱依赖 01
+- **波次**：**可立即起步**——`apps/web` 无人占用，不依赖 01
+- **前置**：无硬依赖。「看到真实数据」需 01 的 `nodes` 表到位，此前用**空数据占位**即可
 
 ## 目标
 
@@ -21,6 +21,8 @@
 - 其余 `apps/api/**`
 
 ## 步骤
+
+> 环境已预装（`node_modules` 齐）；本地预览用 `cd apps/web` 后 `pnpm exec next dev --port 3100`，别占 `:3000`。
 
 1. **取数**：详情页需要按 `slug` 查节点。二选一，总结说明：
    - 给 `GET /v1/nodes` **新增** `slug` 查询参数（只新增，保持原有 `type`/`stage`/`tradition` 过滤不变）
