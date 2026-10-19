@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ErrorNotice } from "@/components/ErrorNotice";
-import { NodeList } from "@/components/NodeList";
 import { safe } from "@/lib/api/safe";
 
 import { searchNodes } from "./api";
+import { SearchResults } from "./SearchResults";
 
 export const metadata: Metadata = {
   title: "搜索 · 世界知识门户",
@@ -55,7 +55,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <section>
         <h1 className="text-2xl font-semibold">搜索</h1>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          按标题与摘要检索知识节点，可按学科 / 阶段 / 知识传统过滤。
+          按标题、摘要与正文检索知识节点，可按学科 / 阶段 / 知识传统过滤。
         </p>
 
         <form action="/search" method="get" className="mt-4 flex flex-wrap gap-2">
@@ -116,7 +116,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
 
           {nodes.length > 0 ? (
-            <NodeList nodes={nodes} />
+            <SearchResults nodes={nodes} snippets={meta?.snippets} />
           ) : (
             <div className="rounded-xl border border-dashed border-black/15 px-6 py-10 text-center text-sm text-zinc-500 dark:border-white/20">
               {degraded
