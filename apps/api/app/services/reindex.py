@@ -1,5 +1,8 @@
 """一次性全量索引入口（不做实时同步；Directus hooks 以后再说）。
 
+索引内容 = ``nodes`` 表 + 各节点最新一条 ``contents`` 正文（剥成纯文本后进
+``bodyText``）。正文为空 / 引用不可解时该节点只是没有 ``bodyText``，不影响本次索引。
+
 在 ``apps/api`` 下运行::
 
     python -m app.services.reindex                 # 覆盖写入（自动建索引 / 更新 settings）
@@ -7,7 +10,8 @@
     python -m app.services.reindex --batch-size 200
 
 环境变量见 ``app.core.config``：``DATABASE_URL`` / ``MEILISEARCH_HOST`` /
-``MEILISEARCH_API_KEY``。数据变更后重跑本命令即可。
+``MEILISEARCH_API_KEY``（解析文件 UUID 正文时另需 ``DIRECTUS_URL``）。数据变更后
+重跑本命令即可。
 """
 
 import argparse
@@ -23,7 +27,9 @@ from app.services.indexer import DEFAULT_BATCH_SIZE, rebuild_index
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """解析命令行参数。"""
-    parser = argparse.ArgumentParser(description="把 MySQL 中的 nodes 全量索引进 Meilisearch")
+    parser = argparse.ArgumentParser(
+        description="把 MySQL 中的 nodes（含最新正文）全量索引进 Meilisearch"
+    )
     parser.add_argument("--reset", action="store_true", help="先删除索引再重建（settings 变更时用）")
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="每批推送条数")
     return parser.parse_args(argv)
