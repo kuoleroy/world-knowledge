@@ -19,17 +19,20 @@ router = APIRouter(prefix="/nodes", tags=["nodes"])
 def list_nodes(
     type: str | None = None,
     stage: str | None = None,
+    discipline: str | None = None,
     tradition: str | None = None,
     slug: str | None = None,
     db: Session = Depends(get_db),
 ) -> dict:
-    """节点列表，可按 type / stage / tradition / slug 过滤（只读）。"""
+    """节点列表，可按 type / stage / discipline / tradition / slug 过滤（只读）。"""
     try:
         stmt = select(Node)
         if type is not None:
             stmt = stmt.where(Node.type == type)
         if stage is not None:
             stmt = stmt.where(Node.stage == stage)
+        if discipline is not None:
+            stmt = stmt.where(Node.discipline == discipline)
         if tradition is not None:
             stmt = stmt.where(Node.tradition == tradition)
         if slug is not None:
