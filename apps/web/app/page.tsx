@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getStages } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 import { ErrorNotice } from "@/components/ErrorNotice";
@@ -37,7 +39,15 @@ export default async function HomePage() {
       {stages.error && <ErrorNotice message={stages.error} />}
 
       <section>
-        <h2 className="mb-4 text-sm font-medium text-zinc-500">第一步 · 选择阶段</h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-sm font-medium text-zinc-500">第一步 · 选择阶段</h2>
+          <Link
+            href="/discipline"
+            className="rounded-full border border-black/15 px-3 py-1 text-sm text-zinc-600 transition-colors hover:border-black/40 hover:text-foreground dark:border-white/20 dark:text-zinc-400 dark:hover:border-white/40"
+          >
+            或：按学科浏览 →
+          </Link>
+        </div>
         {stages.data && <StageCards stages={stages.data} />}
       </section>
     </div>
