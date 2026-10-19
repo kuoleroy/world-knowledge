@@ -32,3 +32,26 @@ function buildQuery(query: DirectusListQuery): string {
 export function getNodesFromDirectus(query: DirectusListQuery = {}): Promise<KnowledgeNode[]> {
   return fetchDirectus<KnowledgeNode[]>(`/items/nodes${buildQuery(query)}`, DIRECTUS_TOKEN);
 }
+
+/** Directus contents 集合记录（列名与 Directus 建表一致，snake_case）。 */
+export interface DirectusContent {
+  id: number;
+  node: number | { id: number } | null;
+  body_ref: string | { id?: string; url?: string } | null;
+  format: string | null;
+  version: number | null;
+  status: string | null;
+}
+
+/** 读取某节点的最新一条正文记录。 */
+export function getContentByNodeId(nodeId: number): Promise<DirectusContent[]> {
+  return fetchDirectus<DirectusContent[]>(
+    `/items/contents${buildQuery({
+      fields: "id,node,body_ref,format,version,status",
+      filter: { node: { _eq: nodeId } },
+      limit: 1,
+      sort: "-version",
+    })}`,
+    DIRECTUS_TOKEN,
+  );
+}
