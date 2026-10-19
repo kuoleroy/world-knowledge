@@ -1,0 +1,133 @@
+# 标注规则：把抓到的条目映射到 4 阶段 × 12 学科 × 5 知识传统
+#
+# 设计原则
+# 1. 学科（discipline）由「种子」决定：人工挑一个 Wikidata 根条目，其子树的条目
+#    继承该学科。这是最可控、也最容易人工校正的方式，不做关键词猜测。
+# 2. 阶段（stage）与传统（tradition）先走下面的关键词规则（可读、可改、可排序），
+#    规则都没命中时才回退到种子的默认值 / defaults。
+# 3. 所有 id 必须来自 apps/api/app/data/skeleton/*.json（冻结契约），
+#    写错 id 会在加载配置时直接报错，不会产出脏数据。
+#
+# 排序即优先级：规则列表按顺序匹配，先命中先用。改顺序 = 改标注结果，改完记得重跑。
+
+version: 1
+
+# ---- 产出字段默认值（键名与 nodes 表列名一致）----
+defaults:
+  language: zh
+  node_type: concept # concept / path / resource / topic
+  status: draft # draft / review / published，导入默认草稿
+  stage: learning # 规则全不命中时的兜底阶段
+
+# ---- 抓取质量过滤 ----
+filters:
+  # 维基站点链接数下限：低于此值通常是冷门/碎片条目
+  min_sitelinks: 5
+  # 中文门户，必须有中文标签（否则标题只能落成英文）
+  require_zh_label: true
+  # 必须有中文维基条目：既是 source_url 的来源，也是后续改写的素材入口
+  require_zh_sitelink: true
+  # 中文节点不要塞英文摘要充当 summary；没有中文描述就留空，等 04 用正文改写补
+  allow_en_summary: false
+  # 人工黑名单：命中即跳过，理由写清便于以后复盘
+  exclude_qids:
+    Q11322253: "「糞酒」（人粪入药的传统饮品），不适合作门户条目"
+    Q11260252: "「uirō」日本非处方药，无中文条目，价值低"
+    Q49330: "「无国界医生」是国际组织，不是知识概念，且关系噪声把它挂到了医学子树"
+    Q1187990: "「进化医学」被 Wikidata 误列为医学哲学子类（关系噪声），暂不入库"
+    Q3928885: "「镭补」是 20 世纪初的伪科学商品，不适合作知识条目"
+
+# ---- 阶段规则（顺序匹配，先命中先用）----
+# 语义：preschool=感知好奇 / learning=系统掌握 / research=探索质疑 / change=应用实践
+stage_rules:
+  - stage: research
+    reason: 命中「临床试验/假说/循证/双盲」等研究活动关键词
+    # 注意：不要用裸的「研究」——几乎所有学科描述都写「研究……的学科」，会把学科条目
+    # 全染成研究阶段。这里只收「明确发生在做研究」的词。
+    any:
+      [临床试验, 臨床試驗, 医学研究, 醫學研究, 假说, 假說, 循证, 循證, 前沿, 未解, 争议, 爭議, 随机对照, 雙盲, 双盲]
+
+  - stage: change
+    reason: 命中「治疗/手术/护理/预防/诊断」等实践类关键词
+    any:
+      [治疗, 治療, 疗法, 療法, 手术, 手術, 护理, 護理, 诊断, 診斷, 预防, 預防, 康复, 康復, 急救, 疫苗, 药物, 藥物, 保健, 实践, 實踐, 卫生服务, 衛生服務]
+
+  - stage: preschool
+    reason: 命中「儿童/幼儿/婴儿」等学前关键词
+    any: [儿童, 兒童, 幼儿, 幼兒, 婴儿, 嬰兒, 新生儿, 新生兒, 学龄前, 學齡前, 儿科, 兒科]
+
+# ---- 知识传统规则（顺序匹配，先命中先用）----
+# 语义：empirical=实证科学（默认主线）/ holistic=整体·生命 / experiential=经验·乡土
+#       speculative=思辨·哲学 / devotional=信仰·修行
+tradition_rules:
+  - tradition: holistic
+    reason: 命中整体·生命传统关键词（中医/阿育吠陀/藏医/经络等）
+    any:
+      [中医, 中醫, 中药, 中藥, 针灸, 針灸, 针刺, 針刺, 经络, 經絡, 气功, 氣功, 推拿, 刮痧, 拔罐, 艾灸, 藏医, 藏醫, 阿育吠陀, 尤纳尼, 尤納尼, 韩医, 韓醫, 汉方, 漢方, 顺势, 順勢, 体液, 體液, 阴阳, 陰陽, 五行, 穴位, 整体观, 整體觀]
+
+  - tradition: experiential
+    reason: 命中经验·乡土传统关键词（草药/助产/民间/口传等）
+    any:
+      [民间, 民間, 乡土, 鄉土, 草药, 草藥, 助产, 助產, 传统, 傳統, 口传, 口傳, 食疗, 食療, 偏方, 秘方, 经验, 經驗, 民族医学, 民族醫學]
+
+  - tradition: speculative
+    reason: 命中思辨·哲学传统关键词（伦理/哲学/思辨等）
+    any: [哲学, 哲學, 伦理, 倫理, 思辨, 逻辑, 邏輯, 形而上, 本体论, 本體論, 医学思想, 醫學思想]
+
+  - tradition: devotional
+    reason: 命中信仰·修行传统关键词（祈祷/仪式/灵性等）
+    any: [信仰, 宗教, 祈祷, 祈禱, 灵性, 靈性, 仪式, 儀式, 萨满, 薩滿, 修行, 神圣, 神聖, 朝圣, 朝聖, 神的治疗, 神力]
+
+# ---- 学科 → 种子条目 ----
+# expect_zh 是人工核对过的中文标签，仅用于 check --online 检查 QID 是否漂移
+# （不参与产出，也不会因简繁差异报错）。
+# stage 是人工钉死的阶段；不写则走上面的 stage_rules。
+disciplines:
+  health_medicine:
+    note: 先跑通这一个学科线：健康与医学的传统差异最典型（实证 / 整体 / 经验 / 思辨 / 信仰五条都在）
+    seeds:
+      # ---- 实证科学线（现代医学）----
+      - { qid: Q11190, expect_zh: 医学, tradition: empirical, limit: 6, min_sitelinks: 20, stage: learning }
+      - { qid: Q12136, expect_zh: 疾病, tradition: empirical, limit: 8, min_sitelinks: 40 }
+      - { qid: Q40821, expect_zh: 外科學, tradition: empirical, limit: 5, min_sitelinks: 8 }
+      - { qid: Q121176, expect_zh: 护理学, tradition: empirical, limit: 5, min_sitelinks: 5 }
+      - { qid: Q128406, expect_zh: 药理学, tradition: empirical, limit: 5, min_sitelinks: 8 }
+      - { qid: Q134808, expect_zh: 疫苗, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q30612, expect_zh: 臨床試驗, tradition: empirical, limit: 4, min_sitelinks: 6, stage: research }
+      - { qid: Q177719, expect_zh: 诊断, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q189603, expect_zh: 公共卫生, tradition: empirical, limit: 5, min_sitelinks: 8 }
+      - { qid: Q133981, expect_zh: 急救, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q133805, expect_zh: 流行病学, tradition: empirical, limit: 5, min_sitelinks: 8 }
+      - { qid: Q179661, expect_zh: 疗法, tradition: empirical, limit: 5, min_sitelinks: 6 }
+      - { qid: Q1773974, expect_zh: 預防醫學, tradition: empirical, limit: 5, min_sitelinks: 6 }
+      - { qid: Q2752427, expect_zh: 医学研究, tradition: empirical, limit: 5, min_sitelinks: 5, stage: research, include_subclasses: true }
+      - { qid: Q691640, expect_zh: 循证医学, tradition: empirical, limit: 4, min_sitelinks: 4 }
+      - { qid: Q514, expect_zh: 解剖学, tradition: empirical, limit: 5, min_sitelinks: 10 }
+      - { qid: Q7208, expect_zh: 病理学, tradition: empirical, limit: 4, min_sitelinks: 6 }
+
+      # ---- 整体·生命线（中医 / 阿育吠陀 / 藏医 / 尤纳尼）----
+      # 概念型种子开 include_subclasses：中医的子类（中药、气功等）才是真正的内容条目
+      - { qid: Q200253, expect_zh: 中医学, tradition: holistic, limit: 8, min_sitelinks: 5, include_subclasses: true }
+      - { qid: Q11650808, expect_zh: 针灸, tradition: holistic, limit: 4, min_sitelinks: 4 }
+      - { qid: Q132325, expect_zh: 阿育吠陀, tradition: holistic, limit: 5, min_sitelinks: 4, include_subclasses: true }
+      - { qid: Q1567507, expect_zh: 藏医学, tradition: holistic, limit: 4, min_sitelinks: 3 }
+      - { qid: Q1520176, expect_zh: 尤纳尼医学, tradition: holistic, limit: 3, min_sitelinks: 3 }
+
+      # ---- 经验·乡土线（草药 / 助产 / 民族医学）----
+      # 注意：herbalism（Q861699）已弃用——上游中文标签是「草药师」（herbalist），
+      # 与「草药医学」概念不符，会让节点标题误导；经验线改用下面四个种子覆盖。
+      - { qid: Q188840, expect_zh: 药用植物, tradition: experiential, limit: 5, min_sitelinks: 5 }
+      - { qid: Q20862341, expect_zh: 助產學, tradition: experiential, limit: 4, min_sitelinks: 3 }
+      - { qid: Q771035, expect_zh: 传统医学, tradition: experiential, limit: 5, min_sitelinks: 5 }
+      - { qid: Q1371416, expect_zh: 民族醫學, tradition: experiential, limit: 3, min_sitelinks: 3 }
+
+      # ---- 思辨·哲学线（医学伦理 / 医学哲学 / 医学人类学）----
+      - { qid: Q237151, expect_zh: 医学伦理学, tradition: speculative, limit: 4, min_sitelinks: 5 }
+      - { qid: Q1427574, expect_zh: 医学哲学, tradition: speculative, limit: 4, min_sitelinks: 4 }
+      - { qid: Q1779521, expect_zh: 医疗人类学, tradition: speculative, limit: 3, min_sitelinks: 3 }
+
+      # ---- 信仰·修行线（信仰治疗，上游中文标签为「信心療法」）----
+      - { qid: Q1420463, expect_zh: 信心療法, tradition: devotional, limit: 4, min_sitelinks: 4 }
+
+      # ---- 学前阶段样例（儿科子树，人工钉 stage=preschool）----
+      - { qid: Q123028, expect_zh: 小儿科, tradition: empirical, limit: 5, min_sitelinks: 5, stage: preschool }

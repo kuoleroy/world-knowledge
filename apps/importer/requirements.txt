@@ -1,0 +1,4 @@
+# 运行依赖（仓库根 .venv 已预装，正常无需再装；换机器时按此版本装）
+# 安装：E:\wk\importer\.venv\Scripts\python.exe -m pip install -r apps/importer/requirements.txt
+httpx==0.28.1
+PyYAML==6.0.3
