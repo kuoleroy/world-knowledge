@@ -1,0 +1,40 @@
+# 开放知识库抓取参数（任务书 03 · 步骤 1-2）
+# 只放端点与网络参数，不放任何密钥。
+# 许可与署名要求见 apps/importer/README.md「来源、许可与署名」。
+version: 1
+
+network:
+  # Wikimedia 要求带可识别的 User-Agent（缺失会被 403 拒绝）：
+  # https://foundation.wikimedia.org/wiki/Policy:User-Agent_policy
+  user_agent: "WorldKnowledgePortalImporter/0.1 (WorldKnowledge portal content import; contact: dev@worldknowledge.example)"
+  timeout_seconds: 60
+  # 失败重试次数（超时 / 429 / 5xx）
+  retries: 3
+  # 两次请求之间的最小间隔，避免给公共接口压力
+  min_interval_seconds: 0.4
+
+  # 代理：null 表示跟随环境变量 HTTP_PROXY / HTTPS_PROXY（httpx 默认行为）。
+  # 中国大陆网络直连 Wikimedia 会超时，本机实测需本地代理：
+  #   命令行覆盖  --proxy http://127.0.0.1:7890
+  #   或先设环境变量 HTTPS_PROXY=http://127.0.0.1:7890
+  proxy: null
+
+  # 一次运行最多查询多少个种子（防手滑把整个学科树拉下来）
+  max_seeds_per_run: 40
+
+sources:
+  wikidata:
+    # 结构化主键来源：QID 稳定，作为 slug / source_id 的依据
+    sparql_endpoint: "https://query.wikidata.org/sparql"
+    # 条目级查询（校验种子标签是否漂移用）
+    entity_api: "https://www.wikidata.org/w/api.php"
+    # 标签/描述的语言优先级：优先简体，再回退繁体，最后英文
+    label_languages: "zh-hans,zh-cn,zh,en"
+
+  wikipedia:
+    # 正文摘要：仅作「改写 / 翻译素材」，不直接作为 nodes.summary 入库
+    summary_endpoint: "https://{lang}.wikipedia.org/api/rest_v1/page/summary/{title}"
+    # 优先中文维基；没有中文条目时才回退英文
+    languages: ["zh", "en"]
+    license: "CC BY-SA 4.0"
+    attribution: "维基百科（Wikipedia），CC BY-SA 4.0，见 source_url 对应条目及其编辑历史"
