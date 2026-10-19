@@ -49,3 +49,17 @@ export async function fetchDirectus<T>(path: string, token?: string): Promise<T>
   const body = await requestJson<{ data: T }>(`${DIRECTUS_BASE_URL}${path}`, { headers });
   return body.data;
 }
+
+/** 读取纯文本资源（如 Directus 文件或远程 MDX）。 */
+export async function fetchText(url: string): Promise<string> {
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (cause) {
+    throw new ApiError(`无法连接 ${url}（${(cause as Error).message}）`);
+  }
+  if (!res.ok) {
+    throw new ApiError(`请求失败：${res.status} ${res.statusText}`, res.status);
+  }
+  return res.text();
+}

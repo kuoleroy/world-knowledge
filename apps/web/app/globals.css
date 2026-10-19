@@ -24,3 +24,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* MDX 正文：代码块内的 code 不再叠加行内样式 */
+.mdx-body pre code {
+  background: transparent;
+  padding: 0;
+}

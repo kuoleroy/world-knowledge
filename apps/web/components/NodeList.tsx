@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { KnowledgeNode } from "@wk/types";
 
 /** 知识节点列表。骨架期内容由 Directus 管理，暂无数据时给出占位说明。 */
@@ -15,7 +17,14 @@ export function NodeList({ nodes }: { nodes: KnowledgeNode[] }) {
       {nodes.map((node) => (
         <li key={node.id} className="py-4">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 className="font-medium">{node.title}</h3>
+            <h3 className="font-medium">
+              <Link
+                href={`/node/${encodeURIComponent(node.slug)}`}
+                className="underline-offset-4 hover:underline"
+              >
+                {node.title}
+              </Link>
+            </h3>
             <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-xs text-zinc-500 dark:bg-white/10">
               {node.tradition}
             </span>
