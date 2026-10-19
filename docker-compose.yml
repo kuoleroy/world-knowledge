@@ -10,12 +10,13 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-world_knowledge}
-    ports:
-      - "3306:3306"
+    # 不发布端口到宿主机：宿主机已装 MySQL 9.3 占用 127.0.0.1:3306，会相互遮蔽。
+    # directus / api 均经内部网络 wk 访问，无需暴露；确需宿主访问时改用不冲突端口，如 "3307:3306"。
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - wk
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-password}"]
       interval: 10s
@@ -43,6 +44,9 @@ services:
       - directus_uploads:/directus/uploads
     networks:
       - wk
+    # 兜底：MySQL 未就绪期间 directus 首次连库可能 ECONNREFUSED 退出，
+    # restart 让其在 MySQL healthy 后自动重试，无需手工 docker compose start directus。
+    restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
