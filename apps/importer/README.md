@@ -114,7 +114,7 @@ slug 不变，URL 与幂等 upsert 都安全。非 Wikidata 来源将来用 `<�
 抓取礼节：带可识别 `User-Agent`（缺了会被 Wikimedia 直接 403）、请求间隔 ≥0.4s、失败指数退避、
 结果落 `.cache/` 避免重复打接口。缓存与产出都不进制（见 `.gitignore`）。
 
-## 写入库（步骤 4，尚未启用）
+## 写入库（步骤 4，已落库）
 
 **方式选择：走 Directus `/items/nodes` REST，不直连 MySQL。** 理由：
 
@@ -123,19 +123,38 @@ slug 不变，URL 与幂等 upsert 都安全。非 Wikidata 来源将来用 `<�
 3. 换机器复现只要一个 URL + 一个 token。
 
 **幂等**：以 `source_id`（= QID）为业务键「先查后写」——查到就 PATCH 有差异的字段，
-查不到才 POST，字段全一致则跳过；`slug` 在表上还有 unique 约束兜底。重复跑不会重复插。
+查不到才 POST，字段全一致则跳过；`slug` 形如 `wd-<QID>`，与 `source_id` 一一对应。
+
+**约束**：`edges.source_node/target_node`、`contents.node` 对 `nodes.id` 是 `NO ACTION` 外键，
+**删节点前必须先清 `edges` / `contents`**；本模块只做 insert / 有差异的 update，不删不改外键数据。
 
 ```powershell
-$env:DIRECTUS_URL="http://127.0.0.1:8055"
-$env:DIRECTUS_TOKEN="<管理员 token>"
-..\..\.venv\Scripts\python.exe -m importer push --discipline health_medicine           # dry-run
-..\..\.venv\Scripts\python.exe -m importer push --discipline health_medicine --yes     # 真写
+cd E:\wk\importer\apps\importer
+# 1) 取管理员 token（写权限仅管理员；public 角色只读）
+$login = Invoke-RestMethod -Uri 'http://localhost:8055/auth/login' -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"email":"admin@worldknowledge.org","password":"password"}'
+$env:DIRECTUS_URL = 'http://localhost:8055'
+$env:DIRECTUS_TOKEN = $login.data.access_token
+
+# 2) 先 dry-run（只查不写），确认「将新建 N / 将更新 0」
+..\..\.venv\Scripts\python.exe -m importer push --discipline health_medicine
+
+# 3) 真写
+..\..\.venv\Scripts\python.exe -m importer push --discipline health_medicine --yes
 ```
 
-> **现状（2026-10-19）**：共享 Directus（`:8055`）里 `nodes` 集合**已经存在**——01 建好，
-> 14 列与 `MANAGED_FIELDS` 完全一致，并有 3 条样例数据；但 01 尚未合并进 `main`，
-> 主控也还没下写入指令，所以本分支**只做了只读验证**：`upsert_many(dry_run=True)`
-> 跑通 60 条「将新建 / 0 失败」。真写（`--yes`）等主控通知后再执行。
+**落库记录（2026-10-19，主控绿灯后执行）**
+
+| 项 | 结果 |
+|---|---|
+| 首次写入 | 60 条全部新建（`nodes.id` 5–64，加上 01 的 3 条样例共 63 行），0 失败 |
+| 幂等复跑 #2 | 新建 0 / 更新 0 / 无变化 60 |
+| 幂等复跑 #3 | 新建 0 / 更新 0 / 无变化 60 |
+| 重复检查 | `slug` 无重复、`source_id` 无重复；`stage/discipline/tradition/source_id/source_url/title` 无空值 |
+| 内容指纹 | 两次复跑前后 60 行管理字段 sha256 完全一致（`c22cfc52…61d5`） |
+| 门户读路径 | 匿名（无 token）`GET /items/nodes?filter={"stage":{"_eq":X},"discipline":{"_eq":"health_medicine"}}` → preschool 2 / learning 36 / research 3 / change 19 |
+| `/v1/nodes` | 返回 63 行，字段转 camelCase（`sourceId`/`sourceUrl`/`createdAt`），与 `packages/types` 的 `KnowledgeNode` 对齐 |
 
 ## 测试
 
@@ -189,3 +208,7 @@ apps/importer/
    目前不猜；`defaults.node_type` 可整体切换。
 6. **每个 QID 只对应 `nodes` 一行**：同一传统/学科下不重复建节点；跨学科复用同一概念时，
    将来需要 `nodes ↔ disciplines` 多值关系（当前表结构是一对一字符串），属于表结构议题。
+7. **`/v1/nodes` 暂不支持 `discipline` 过滤**（只支持 `type/stage/tradition/slug`，也不支持分页）。
+   「阶段 × 学科」导航页若走 FastAPI，需要 04 补一个 `discipline` 查询参数；走 Directus
+   `/items/nodes?filter=...` 则已可用（已验证匿名可读、按 stage×discipline 过滤正确）。
+   该端点属 `apps/api/**`，不在本分支范围内 → **请求主控协调**。
