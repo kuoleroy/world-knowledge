@@ -33,8 +33,11 @@ cd E:\wk\importer\apps\importer
 # 联网核对种子 QID 的中文标签有没有漂移（改过 Wikidata 后建议跑一次）
 ..\..\.venv\Scripts\python.exe -m importer check --online --proxy http://127.0.0.1:7890
 
-# 写入库（步骤 4，**等 01 的 nodes 表合并进 main 后再跑**；不加 --yes 是 dry-run）
+# 写入库（步骤 4；不加 --yes 是 dry-run，只查不写）
 ..\..\.venv\Scripts\python.exe -m importer push --discipline health_medicine --yes
+
+# 落库自检（只读，public 权限即可，不需要 token）：条数/重复/空字段/内容指纹
+..\..\.venv\Scripts\python.exe -m importer verify --discipline health_medicine
 ```
 
 > 首次运行/换网络后建议先 `check --online`，种子 QID 若被上游合并或改标签会立刻暴露。
@@ -155,6 +158,7 @@ $env:DIRECTUS_TOKEN = $login.data.access_token
 | 内容指纹 | 两次复跑前后 60 行管理字段 sha256 完全一致（`c22cfc52…61d5`） |
 | 门户读路径 | 匿名（无 token）`GET /items/nodes?filter={"stage":{"_eq":X},"discipline":{"_eq":"health_medicine"}}` → preschool 2 / learning 36 / research 3 / change 19 |
 | `/v1/nodes` | 返回 63 行，字段转 camelCase（`sourceId`/`sourceUrl`/`createdAt`），与 `packages/types` 的 `KnowledgeNode` 对齐 |
+| 自检命令 | `python -m importer verify --discipline health_medicine` → `结论：通过（无重复、必填字段齐全）`，指纹同上 |
 
 ## 测试
 
@@ -177,6 +181,7 @@ apps/importer/
     models.py         Seed / RawItem / Annotation / NodeDraft
     annotate.py       规则匹配（不含硬编码关键词）
     pipeline.py       抓取→过滤→标注→落盘，含轮转取样
+    verify.py         落库自检（只读）：重复/空字段/内容指纹
     net.py            httpx 客户端：UA、限流、重试、缓存
     output.py         原子写 JSONL/JSON
     sources/

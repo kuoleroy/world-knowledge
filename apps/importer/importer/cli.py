@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any, Sequence
@@ -18,7 +19,8 @@ from .net import FetchError, Fetcher
 from .output import read_jsonl
 from .pipeline import RunOptions, RunResult, run
 from .skeleton import SkeletonError, find_repo_root, load_skeleton
-from .writers.directus import DirectusError, DirectusWriter
+from .verify import run as verify_run
+from .writers.directus import BASE_URL_ENV, DEFAULT_BASE_URL, TOKEN_ENV, DirectusError, DirectusWriter
 
 # ``apps/importer``；配置与产出都相对它定位
 APP_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +56,13 @@ def build_parser() -> argparse.ArgumentParser:
     push_parser.add_argument("--token", default=None, help="Directus 管理员 token（默认 $DIRECTUS_TOKEN）")
     push_parser.add_argument("--data-dir", default=None, help="nodes.jsonl 所在目录（默认 apps/importer/out）")
 
+    verify_parser = subparsers.add_parser("verify", help="落库自检（只读）：条数/重复/空字段/内容指纹")
+    verify_parser.add_argument("--discipline", required=True, help="学科 id，如 health_medicine")
+    verify_parser.add_argument("--base-url", default=None, help="Directus 地址（默认 $DIRECTUS_URL）")
+    verify_parser.add_argument(
+        "--token", default=None, help="可选；public 只读即可，无需管理员 token"
+    )
+
     return parser
 
 
@@ -70,6 +79,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _cmd_check(args, config)
         if args.command == "push":
             return _cmd_push(args, config)
+        if args.command == "verify":
+            return _cmd_verify(args, config)
     except (ConfigError, SkeletonError, FetchError, DirectusError, ValueError) as exc:
         print(f"错误：{exc}", file=sys.stderr)
         return 1
@@ -161,6 +172,30 @@ def _cmd_push(args: argparse.Namespace, config: AppConfig) -> int:
         for slug, message in list(outcome.failed.items())[:10]:
             print(f"    {slug}: {message}", file=sys.stderr)
         return 1
+    return 0
+
+
+def _cmd_verify(args: argparse.Namespace, config: AppConfig) -> int:
+    base_url = args.base_url or os.environ.get(BASE_URL_ENV, DEFAULT_BASE_URL)
+    token = args.token or os.environ.get(TOKEN_ENV)
+    report = verify_run(base_url, args.discipline, token=token)
+
+    print(f"[verify] {args.discipline}：{report.total} 行（Directus {base_url}）")
+    print(f"  重复 slug：{report.duplicate_slugs or '无'} / 重复 source_id：{report.duplicate_source_ids or '无'}")
+    empty = "，".join(f"{name}={len(slugs)}" for name, slugs in report.missing.items())
+    print(f"  必填字段空值：{empty}")
+    print(f"  无 summary：{report.missing_summary}（上游无中文描述，待 04 改写补）")
+    print(f"  阶段分布：{_format_counts(report.by_stage)}")
+    print(f"  传统分布：{_format_counts(report.by_tradition)}")
+    print(f"  内容指纹：{report.fingerprint}")
+
+    if report.total == 0:
+        print("结论：库里没有该学科的节点（先跑 run + push）", file=sys.stderr)
+        return 1
+    if not report.ok:
+        print("结论：不一致（有重复或必填字段为空），请检查写入逻辑", file=sys.stderr)
+        return 1
+    print("结论：通过（无重复、必填字段齐全）")
     return 0
 
 
