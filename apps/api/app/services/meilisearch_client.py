@@ -14,20 +14,23 @@ from app.core.config import settings
 NODES_INDEX_UID = "nodes"
 NODES_PRIMARY_KEY = "id"
 
-# 只有标题与摘要参与相关性排序（任务书要求）
-NODES_SEARCHABLE_ATTRIBUTES = ["title", "summary"]
+# 参与相关性排序的字段：标题 / 摘要 / 正文纯文本（08 把 contents 正文纳入搜索）
+NODES_SEARCHABLE_ATTRIBUTES = ["title", "summary", "bodyText"]
 
 # 可过滤维度（任务书要求）
 NODES_FILTERABLE_ATTRIBUTES = ["discipline", "stage", "tradition"]
 
 # 命中结果随文档返回的字段：覆盖 NodeOut 全部字段，
-# 保证 /v1/search 的 data 直接就是 KnowledgeNode 形状（门户可直接复用 NodeList）
+# 保证 /v1/search 的 data 直接就是 KnowledgeNode 形状（门户可直接复用 NodeList）。
+# ``bodyText`` 也列在这里：Meilisearch 只对 displayedAttributes 里的字段做 crop /
+# highlight（片段在 _formatted 里下发），端点取完片段后会把它从 data 中剔除。
 NODES_DISPLAYED_ATTRIBUTES = [
     "id",
     "type",
     "slug",
     "title",
     "summary",
+    "bodyText",
     "stage",
     "discipline",
     "tradition",

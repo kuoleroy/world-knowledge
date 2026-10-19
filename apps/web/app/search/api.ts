@@ -11,6 +11,8 @@ export interface SearchMeta {
   degraded: boolean;
   reason?: string;
   filter?: string;
+  // 正文片段：节点 id → 带 <em> 高亮的摘录（无正文的节点不出现）
+  snippets?: Record<string, string>;
 }
 
 export interface SearchResult {
