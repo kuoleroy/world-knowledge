@@ -18,7 +18,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from .annotate import annotate, build_draft
 from .config import AppConfig
@@ -98,7 +98,7 @@ def run(config: AppConfig, fetcher: Fetcher, options: RunOptions) -> RunResult:
     candidates: list[RawItem] = []
     per_seed: Counter[str] = Counter()
     for item in merged.values():
-        reason = _reject_reason(item, config)
+        reason = _reject_reason(item, config, plan.exclude_qids)
         if reason is not None:
             skipped[reason] += 1
             continue
@@ -209,7 +209,10 @@ def run(config: AppConfig, fetcher: Fetcher, options: RunOptions) -> RunResult:
     )
 
 
-def _reject_reason(item: RawItem, config: AppConfig) -> str | None:
+def _reject_reason(item: RawItem, config: AppConfig, excluded: Mapping[str, str]) -> str | None:
+    # 跨学科重复：该 QID 归「保留方」学科，本学科显式排除（见 taxonomy 的 exclude_qids）
+    if item.qid in excluded:
+        return "excluded_by_discipline"
     filters = config.taxonomy.filters
     if item.qid in filters.exclude_qids:
         return "excluded_by_config"

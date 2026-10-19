@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -85,11 +85,17 @@ class Rule:
 
 @dataclass(frozen=True)
 class DisciplinePlan:
-    """一个学科的导入计划。"""
+    """一个学科的导入计划。
+
+    ``exclude_qids``：本学科**不得产出**的条目（QID → 归属理由）。用于处理跨学科重复——
+    同一 QID 可能同时从两个学科的种子子树里被继承到，但节点只有一个 discipline 字段，
+    后写会覆盖。这些 QID 一律归「保留方」学科，落选学科在这里显式排除，保证归属稳定。
+    """
 
     discipline: str
     note: str
     seeds: tuple[Seed, ...]
+    exclude_qids: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -305,6 +311,9 @@ def load_taxonomy(path: Path, skeleton: Skeleton) -> Taxonomy:
     for discipline, entry in disciplines_raw.items():
         if not isinstance(entry, Mapping):
             raise ConfigError(f"{where}:disciplines.{discipline} 必须是映射")
+        exclude_raw = entry.get("exclude_qids") or {}
+        if not isinstance(exclude_raw, Mapping):
+            raise ConfigError(f"{where}:disciplines.{discipline}.exclude_qids 必须是映射（QID → 理由）")
         seed_entries = entry.get("seeds")
         if not isinstance(seed_entries, list) or not seed_entries:
             raise ConfigError(f"{where}:disciplines.{discipline}.seeds 必须是非空数组")
@@ -323,6 +332,7 @@ def load_taxonomy(path: Path, skeleton: Skeleton) -> Taxonomy:
             discipline=str(discipline),
             note=str(entry.get("note") or "").strip(),
             seeds=seeds,
+            exclude_qids={str(key): str(value) for key, value in exclude_raw.items()},
         )
 
     taxonomy = Taxonomy(
@@ -374,6 +384,9 @@ def validate_taxonomy(taxonomy: Taxonomy, skeleton: Skeleton) -> None:
             if seed.qid in seen:
                 problems.append(f"{discipline}: 种子 {seed.qid} 重复出现")
             seen.add(seed.qid)
+        for qid in plan.exclude_qids:
+            if not QID_PATTERN.match(qid):
+                problems.append(f"{discipline}: exclude_qids 里的 {qid!r} 不是合法 QID")
 
     if problems:
         raise ConfigError("配置校验失败：\n  - " + "\n  - ".join(problems))

@@ -146,6 +146,27 @@ class PipelineTest(unittest.TestCase):
         self.assertNotIn(excluded, {node.source_id for node in result.nodes})
         self.assertGreaterEqual(result.skipped.get("excluded_by_config", 0), 1)
 
+    def test_discipline_excluded_qid_is_skipped(self) -> None:
+        """跨学科重复：落选学科的 exclude_qids 里的 QID 不产出，归保留方学科。"""
+        plan = self.config.taxonomy.plan("math_natural_sciences")
+        self.assertIn("Q514", plan.exclude_qids)  # 解剖学归 health_medicine
+        seed = plan.seeds[0]
+        self.fetcher = FakeFetcher(
+            {seed.qid: [make_item(qid="Q514", label_zh="解剖学", seed=seed)]}
+        )
+        result = run(
+            self.config,
+            self.fetcher,  # type: ignore[arg-type]
+            RunOptions(
+                discipline="math_natural_sciences",
+                limit=10,
+                with_wikipedia=False,
+                out_dir=self.out_dir,
+            ),
+        )
+        self.assertNotIn("Q514", {node.source_id for node in result.nodes})
+        self.assertGreaterEqual(result.skipped.get("excluded_by_discipline", 0), 1)
+
     def test_summary_file_matches_nodes(self) -> None:
         result = self._run(limit=15)
         summary = json.loads(result.summary_path.read_text(encoding="utf-8"))

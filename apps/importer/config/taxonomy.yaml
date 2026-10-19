@@ -147,6 +147,11 @@ disciplines:
 
   language_communication:
     note: 语言、语言学与传播；主线覆盖「语言—文字—言语行为—翻译—媒介」
+    # 跨学科重复的「落选学科」在这里显式排除：该 QID 归保留方学科，本学科不产出，
+    # 否则同一 source_id 会被后写覆盖 discipline（详见文末「跨学科归属裁定」）。
+    exclude_qids:
+      Q12827256: "神话 → thinking_humanities（本学科经语言子树继承）"
+      Q36192: "民俗 → thinking_humanities（本学科种子，归属改判给人文）"
     seeds:
       - { qid: Q315, expect_zh: 语言, tradition: experiential, limit: 6, min_sitelinks: 20 }
       - { qid: Q8162, expect_zh: 语言学, tradition: empirical, limit: 6, min_sitelinks: 20 }
@@ -171,6 +176,9 @@ disciplines:
 
   thinking_humanities:
     note: 思维与人文；主线覆盖「哲学—逻辑—伦理—历史—文学—艺术—宗教」
+    exclude_qids:
+      Q7162: "遗传学 → math_natural_sciences（本学科经心理学子树继承）"
+      Q590870: "电影摄影 → life_experience（本学科经艺术子树继承）"
     seeds:
       - { qid: Q5891, expect_zh: 哲学, tradition: speculative, limit: 6, min_sitelinks: 25 }
       - { qid: Q8078, expect_zh: 逻辑学, tradition: speculative, limit: 5, min_sitelinks: 15 }
@@ -216,6 +224,10 @@ disciplines:
 
   society_governance:
     note: 社会与治理；覆盖「社会—政治—法律—公共行政—国际关系—公共政策」
+    exclude_qids:
+      Q131222: "信息论 → thinking_humanities（本学科经治理/社会学子树继承）"
+      Q177708: "更年期 → education_development（本学科经社会学子树继承）"
+      Q69883: "城市规划 → engineering_construction（本学科经社会子树继承）"
     seeds:
       - { qid: Q8425, expect_zh: 社会, tradition: holistic, limit: 6, min_sitelinks: 20 }
       - { qid: Q21201, expect_zh: 社会学, tradition: empirical, limit: 6, min_sitelinks: 20, stage: research }
@@ -236,6 +248,9 @@ disciplines:
 
   economy_business:
     note: 经济与商业；覆盖「经济—金融—市场—企业—管理—贸易」
+    exclude_qids:
+      Q12483: "统计学 → math_natural_sciences（本学科经经济学子树继承）"
+      Q12739: "核动力 → engineering_construction（本学科经能源/经济子树继承）"
     seeds:
       - { qid: Q8134, expect_zh: 经济学, tradition: speculative, limit: 6, min_sitelinks: 20, stage: research }
       - { qid: Q159810, expect_zh: 经济, tradition: holistic, limit: 5, min_sitelinks: 12 }
@@ -258,6 +273,13 @@ disciplines:
 
   math_natural_sciences:
     note: 数学与自然科学；覆盖「数理化生—天文地学—统计概率—科学方法」
+    exclude_qids:
+      Q11660: "人工智能 → information_computing（本学科经计算子树继承）"
+      Q35395: "语音学 → language_communication（本学科经声学子树继承）"
+      Q37425: "膝 → health_medicine（本学科经生物学子树继承）"
+      Q514: "解剖学 → health_medicine（本学科经生物学子树继承）"
+      Q46857: "科学方法 → thinking_humanities（本学科种子，归属改判给人文）"
+      Q8078: "逻辑学 → thinking_humanities（本学科经数学子树继承）"
     seeds:
       - { qid: Q395, expect_zh: 数学, tradition: speculative, limit: 6, min_sitelinks: 25 }
       - { qid: Q413, expect_zh: 物理学, tradition: empirical, limit: 6, min_sitelinks: 25 }
@@ -282,6 +304,9 @@ disciplines:
 
   information_computing:
     note: 信息与计算；覆盖「计算机—软件—网络—数据—算法—人工智能」
+    exclude_qids:
+      Q131723: "比特币 → economy_business（本学科经计算子树继承）"
+      Q29137: "电脑犯罪 → defense_security（本学科经安全子树继承）"
     seeds:
       - { qid: Q21198, expect_zh: 计算机科学, tradition: empirical, limit: 6, min_sitelinks: 20 }
       - { qid: Q68, expect_zh: 电子计算机, tradition: empirical, limit: 5, min_sitelinks: 20 }
@@ -302,6 +327,12 @@ disciplines:
 
   engineering_construction:
     note: 工程与建造；覆盖「工程—建造—土木/机械/电气—建筑—基础设施」
+    exclude_qids:
+      Q11453: "灌溉 → agriculture_food（本学科经水利工程子树继承）"
+      Q68: "电子计算机 → information_computing（本学科经运输/机械子树继承）"
+      Q7397: "软件 → information_computing（本学科经计算子树继承）"
+      Q9143: "编程语言 → information_computing（本学科经计算子树继承）"
+      Q80993: "软件工程 → information_computing（本学科经计算子树继承）"
     seeds:
       - { qid: Q11023, expect_zh: 工程学, tradition: empirical, limit: 6, min_sitelinks: 20 }
       - { qid: Q3875186, expect_zh: 施工, tradition: experiential, limit: 4, min_sitelinks: 10, stage: change }
@@ -323,6 +354,8 @@ disciplines:
 
   agriculture_food:
     note: 农业与食品；覆盖「农业—作物—畜牧渔业—土壤灌溉—食品加工与饮食」
+    exclude_qids:
+      Q39809: "市场营销 → economy_business（本学科经农业经济子树继承）"
     seeds:
       # 农业是分类型概念，打开子类拿到有机农业、可持续农业等分支
       - { qid: Q11451, expect_zh: 农业, tradition: holistic, limit: 6, min_sitelinks: 15, include_subclasses: true, stage: change }
@@ -348,6 +381,9 @@ disciplines:
 
   defense_security:
     note: 国防与安全；覆盖「军事—战争—军种—武器—国防—安全治理」
+    exclude_qids:
+      Q35535: "警察机构 → society_governance（本学科种子，归属改判给治理）"
+      Q42948: "墙 → engineering_construction（本学科经防御工事子树继承）"
     seeds:
       - { qid: Q8473, expect_zh: 军队, tradition: empirical, limit: 6, min_sitelinks: 15 }
       # 战争是分类型概念，子类（内战、世界大战等）是内容主体
@@ -371,6 +407,9 @@ disciplines:
 
   life_experience:
     note: 生活与体验；覆盖「日常—家庭—衣食住行—休闲—情感—仪式」
+    exclude_qids:
+      Q35473: "窗 → engineering_construction（本学科经住宅子树继承）"
+      Q36794: "門 → engineering_construction（本学科经住宅子树继承）"
     seeds:
       - { qid: Q1129653, expect_zh: 日常生活, tradition: experiential, limit: 5, min_sitelinks: 8 }
       # 家庭是分类型概念，子类（核心家庭、大家庭等）是内容主体
@@ -399,3 +438,39 @@ disciplines:
       # 标签「幼儿监护」天然命中学前规则；这里钉回 learning，避免把养育整体缩窄为学前
       - { qid: Q1217379, expect_zh: 幼儿监护, tradition: experiential, limit: 4, min_sitelinks: 8, stage: learning }
       - { qid: Q11633, expect_zh: 摄影, tradition: experiential, limit: 4, min_sitelinks: 10, include_subclasses: true, stage: change }
+
+# ============================================================
+# 跨学科归属裁定（2026-10 · 主控）
+#
+# 现象：同一 QID 可能同时从两个学科的种子子树里被继承到，但 nodes 只有一个
+# discipline 字段。各学科独立跑、各自 push，按 source_id 幂等 PATCH → 后写覆盖，
+# 归属取决于写入顺序（不稳定）。全量审计出 27 组跨学科重复。
+#
+# 裁定：每个 QID 只归唯一「保留方」学科；落选学科在该学科 exclude_qids 里显式排除，
+# 使重跑时归属稳定、不再互相覆盖。完整清单（保留方 ← 落选方）：
+#
+#   agriculture_food        ← engineering_construction   Q11453 灌溉
+#   economy_business        ← agriculture_food           Q39809 市场营销
+#   economy_business        ← information_computing      Q131723 比特币
+#   engineering_construction← economy_business           Q12739 核动力
+#   engineering_construction← defense_security           Q42948 墙
+#   engineering_construction← society_governance         Q69883 城市规划
+#   health_medicine         ← math_natural_sciences      Q514 解剖学、Q37425 膝
+#   information_computing   ← engineering_construction   Q68 电子计算机、Q7397 软件、
+#                                                        Q9143 编程语言、Q80993 软件工程
+#   information_computing   ← math_natural_sciences      Q11660 人工智能
+#   language_communication  ← math_natural_sciences      Q35395 语音学
+#   math_natural_sciences   ← economy_business           Q12483 统计学
+#   math_natural_sciences   ← thinking_humanities        Q7162 遗传学
+#   defense_security        ← information_computing      Q29137 电脑犯罪
+#   education_development   ← society_governance         Q177708 更年期
+#   society_governance      ← defense_security           Q35535 警察机构
+#   thinking_humanities     ← language_communication     Q12827256 神话、Q36192 民俗
+#   thinking_humanities     ← math_natural_sciences      Q46857 科学方法、Q8078 逻辑学
+#   thinking_humanities     ← society_governance         Q131222 信息论
+#   engineering_construction← life_experience            Q35473 窗、Q36794 門
+#   life_experience         ← thinking_humanities        Q590870 电影摄影
+#
+# 注：Q36192（民俗）、Q46857（科学方法）、Q35535（警察机构）在落选学科里仍是种子行，
+# 但被 exclude_qids 抑制——保留方通过子树继承得到它们。改归属只需改这里的裁定。
+# ============================================================
