@@ -16,11 +16,19 @@ from typing import Any, Sequence
 from . import __version__
 from .config import AppConfig, ConfigError, load_config
 from .net import FetchError, Fetcher
-from .output import read_jsonl
+from .output import ensure_dir, read_jsonl, write_text
 from .pipeline import RunOptions, RunResult, run
 from .skeleton import SkeletonError, find_repo_root, load_skeleton
 from .verify import run as verify_run
-from .writers.directus import BASE_URL_ENV, DEFAULT_BASE_URL, TOKEN_ENV, DirectusError, DirectusWriter
+from .writers.contents import CONTENT_ROOT, ContentsError, ContentsWriter, checksum
+from .writers.directus import (
+    BASE_URL_ENV,
+    DEFAULT_BASE_URL,
+    TOKEN_ENV,
+    DirectusError,
+    DirectusWriter,
+    UpsertOutcome,
+)
 
 # ``apps/importer``；配置与产出都相对它定位
 APP_DIR = Path(__file__).resolve().parent.parent
@@ -63,6 +71,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--token", default=None, help="可选；public 只读即可，无需管理员 token"
     )
 
+    mdx_parser = subparsers.add_parser(
+        "mdx", help="把自撰 MDX 导语幂等写入 contents（步骤 4/5）"
+    )
+    mdx_parser.add_argument("--discipline", required=True, help="学科 id，如 health_medicine")
+    mdx_parser.add_argument("--yes", action="store_true", help="真的写库；不加则只做 dry-run")
+    mdx_parser.add_argument("--base-url", default=None, help="Directus 地址（默认 $DIRECTUS_URL）")
+    mdx_parser.add_argument("--token", default=None, help="Directus 管理员 token（默认 $DIRECTUS_TOKEN）")
+    mdx_parser.add_argument("--data-dir", default=None, help="nodes.jsonl / wiki 所在目录（默认 apps/importer/out）")
+    mdx_parser.add_argument(
+        "--content-dir", default=None, help=f"自撰 MDX 源目录（默认 {CONTENT_ROOT}/<discipline>）"
+    )
+
     return parser
 
 
@@ -81,7 +101,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _cmd_push(args, config)
         if args.command == "verify":
             return _cmd_verify(args, config)
-    except (ConfigError, SkeletonError, FetchError, DirectusError, ValueError) as exc:
+        if args.command == "mdx":
+            return _cmd_mdx(args, config)
+    except (ConfigError, SkeletonError, FetchError, DirectusError, ContentsError, ValueError) as exc:
         print(f"错误：{exc}", file=sys.stderr)
         return 1
 
@@ -197,6 +219,102 @@ def _cmd_verify(args: argparse.Namespace, config: AppConfig) -> int:
         return 1
     print("结论：通过（无重复、必填字段齐全）")
     return 0
+
+
+def _cmd_mdx(args: argparse.Namespace, config: AppConfig) -> int:
+    """把自撰 MDX 导语幂等写入 contents（步骤 4/5）。"""
+    data_dir = Path(args.data_dir) if args.data_dir else (config.app_dir / "out")
+    content_dir = Path(args.content_dir) if args.content_dir else (CONTENT_ROOT / args.discipline)
+    nodes_path = data_dir / args.discipline / "nodes.jsonl"
+    if not nodes_path.is_file():
+        raise ValueError(f"找不到 {nodes_path}；先跑 run 生成待入库数据")
+
+    node_rows = read_jsonl(nodes_path)
+    if not node_rows:
+        raise ValueError(f"{nodes_path} 是空的")
+
+    # 1) 装载自撰 MDX（权威源：committed content/<discipline>/<slug>.mdx）
+    rows: list[dict[str, Any]] = []
+    missing_mdx: list[str] = []
+    for node in node_rows:
+        slug = str(node.get("slug") or "")
+        mdx_path = content_dir / f"{slug}.mdx"
+        if not mdx_path.is_file():
+            missing_mdx.append(slug)
+            continue
+        body = mdx_path.read_text(encoding="utf-8").strip()
+        rows.append(
+            {
+                "slug": slug,
+                "body_ref": body,
+                "format": "mdx",
+                "checksum": checksum(body),
+            }
+        )
+
+    if missing_mdx:
+        print(f"警告：{len(missing_mdx)} 个节点缺少自撰 MDX（content-dir={content_dir}）：", file=sys.stderr)
+        for slug in missing_mdx[:10]:
+            print(f"    {slug}", file=sys.stderr)
+
+    if not rows:
+        print("错误：没有任何可写入的 MDX（检查 --content-dir）", file=sys.stderr)
+        return 1
+
+    # 2) 解析 node 外键并幂等写库
+    with ContentsWriter.from_env(base_url=args.base_url, token=args.token) as writer:
+        writer.ensure_collection()
+        outcome = _mdx_upsert(writer, rows, dry_run=not args.yes)
+
+    mode = "写库" if args.yes else "dry-run（未写库，加 --yes 才真写）"
+    print(f"[mdx] {args.discipline}：{len(rows)} 条，{mode}")
+    print(f"  新建 {outcome.created} / 更新 {outcome.updated} / 无变化 {outcome.unchanged}")
+    if outcome.failed:
+        print(f"  失败 {len(outcome.failed)} 条：", file=sys.stderr)
+        for slug, message in list(outcome.failed.items())[:10]:
+            print(f"    {slug}: {message}", file=sys.stderr)
+
+    if not args.yes:
+        return 0 if not outcome.failed else 1
+
+    # 3) 落盘留档：把 MDX 镜像到 out/<discipline>/mdx/<slug>.mdx（仅内容有变才写）
+    mirror_dir = ensure_dir(data_dir / args.discipline / "mdx")
+    written = 0
+    for row in rows:
+        slug = row["slug"]
+        target = mirror_dir / f"{slug}.mdx"
+        if target.is_file() and target.read_text(encoding="utf-8").strip() == row["body_ref"]:
+            continue
+        write_text(target, row["body_ref"] + "\n")
+        written += 1
+    print(f"  镜像留档：{mirror_dir}（本次写入 {written} 份）")
+    return 0 if not outcome.failed else 1
+
+
+def _mdx_upsert(
+    writer: ContentsWriter, rows: list[dict[str, Any]], *, dry_run: bool
+) -> UpsertOutcome:
+    """逐条解析 node 外键后再交给 writer 幂等写；解析不到 node 的记为失败。"""
+    outcome = UpsertOutcome()
+    for row in rows:
+        slug = row["slug"]
+        try:
+            node_id = writer.resolve_node_id(slug)
+        except ContentsError as exc:
+            outcome.failed[slug] = f"解析 node 失败：{exc}"
+            continue
+        if node_id is None:
+            outcome.failed[slug] = "nodes 里找不到该 slug（先跑 push 落库节点）"
+            continue
+        row["node"] = node_id
+        try:
+            if dry_run:
+                outcome.merge(writer._classify(row))
+            else:
+                outcome.merge(writer.upsert(row))
+        except ContentsError as exc:
+            outcome.failed[slug] = str(exc)
+    return outcome
 
 
 def _make_fetcher(config: AppConfig, *, refresh: bool) -> Fetcher:
