@@ -92,7 +92,7 @@ Directus 建的是 **snake_case** 列；FastAPI `/v1` 输出转 **camelCase**。
 |---|---|---|---|---|
 | id | int unsigned | 否 | 自增 | 主键 |
 | node | int unsigned | 否 | — | 外键 → `nodes.id`（`contents_node_foreign`） |
-| body_ref | varchar(512) | 是 | — | 正文文件在文件系统中的路径（正文本体由 Git 管理） |
+| body_ref | varchar(512) | 是 | — | **正文引用，三选一**：原始 MDX 文本 / Directus 文件 UUID / `http(s)` 链接；**文件系统路径不可渲染**（见项目文档 13.8） |
 | format | varchar(32) | 否 | mdx | mdx / markdown |
 | version | int | 否 | 1 | 正文版本号 |
 | checksum | varchar(64) | 是 | — | 正文 sha256，用于校验引用文件 |
