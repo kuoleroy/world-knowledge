@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// 自托管 Geist（官方 geist 包自带字体文件，CSS 变量名与原先一致）；
+// 不用 next/font/google：容器/无外网环境下无法下载 Google Fonts，会导致构建失败。
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import Link from "next/link";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "世界知识门户",
@@ -23,7 +16,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="zh-CN"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <header className="border-b border-black/10 dark:border-white/15">
