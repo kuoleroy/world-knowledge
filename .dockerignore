@@ -1,0 +1,14 @@
+# 不纳入镜像构建上下文（构建上下文为仓库根，需保留根 package.json /
+# pnpm-workspace.yaml / pnpm-lock.yaml / packages/types 供 web 多阶段构建使用）
+.git
+.gitignore
+node_modules
+**/node_modules
+.next
+**/.next
+out
+dist
+build
+*.log
+.env
+.env.*

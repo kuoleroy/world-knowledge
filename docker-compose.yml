@@ -1,15 +1,27 @@
 # 世界知识门户：数据底座 = MySQL + Directus（headless CMS）
+# 一条命令起全栈：mysql + directus + meilisearch + api + web
 # 说明：表结构由 Directus 建并管理；后端 FastAPI 只做只读映射与自定义端点。
+# 该文件归分支 02（kuoleroy/docker-compose-up）独占维护。
+
 services:
+  # 关系型数据底座
   mysql:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=world_knowledge
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-world_knowledge}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - wk
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   # 后台 + 数据层：Directus 自动建表、出 REST/GraphQL、管用户权限
   directus:
@@ -22,15 +34,25 @@ services:
       - DB_CLIENT=mysql
       - DB_HOST=mysql
       - DB_PORT=3306
-      - DB_DATABASE=world_knowledge
+      - DB_DATABASE=${MYSQL_DATABASE:-world_knowledge}
       - DB_USER=root
-      - DB_PASSWORD=password
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - ADMIN_EMAIL=${DIRECTUS_ADMIN_EMAIL:-admin@worldknowledge.org}
       - ADMIN_PASSWORD=${DIRECTUS_ADMIN_PASSWORD:-password}
     volumes:
       - directus_uploads:/directus/uploads
+    networks:
+      - wk
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      # 用匿名可访问的 /server/ping（Directus 官方健康端点；/server/health 对匿名返回 403）
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8055/server/ping').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
 
   # 后端：FastAPI + SQLModel（薄层自定义端点）
   api:
@@ -38,21 +60,67 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://root:password@mysql:3306/world_knowledge
+      - DATABASE_URL=mysql+pymysql://root:${MYSQL_ROOT_PASSWORD:-password}@mysql:3306/${MYSQL_DATABASE:-world_knowledge}
       - DIRECTUS_URL=http://directus:8055
       - MEILISEARCH_HOST=http://meilisearch:7700
+    networks:
+      - wk
     depends_on:
-      - mysql
-      - meilisearch
+      mysql:
+        condition: service_healthy
+      meilisearch:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   # 搜索（后期接入）
   meilisearch:
     image: getmeili/meilisearch:v1.6
     environment:
-      - MEILI_MASTER_KEY=change-me-master-key
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-change-me-master-key}
     ports:
       - "7700:7700"
+    networks:
+      - wk
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # 门户（Next.js）：新增服务
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # 容器内（服务端组件）访问 API / Directus 用 compose 服务名；
+      # 宿主机浏览器访问门户走 localhost:3000，访问 API 走 localhost:8000。
+      - NEXT_PUBLIC_API_BASE_URL=http://api:8000
+      - NEXT_PUBLIC_DIRECTUS_URL=http://directus:8055
+    networks:
+      - wk
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
 volumes:
   mysql_data:
   directus_uploads:
+
+networks:
+  wk:
+    driver: bridge
