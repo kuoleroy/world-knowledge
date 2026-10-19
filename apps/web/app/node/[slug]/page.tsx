@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 
 import { ErrorNotice } from "@/components/ErrorNotice";
 import { MdxContent } from "@/components/MdxContent";
+import { RelatedNodes, type RelatedItem } from "@/components/RelatedNodes";
+import type { KnowledgeNode } from "@wk/types";
 import { getMdxSourceByNodeId } from "@/lib/api/contents";
-import { getDisciplines, getNodeBySlug, getStages, getTraditions } from "@/lib/api/fastapi";
+import { getDisciplines, getEdges, getNodeById, getNodeBySlug, getStages, getTraditions } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 
 export default async function NodeDetailPage({
@@ -41,7 +43,46 @@ export default async function NodeDetailPage({
     ? disciplines.data?.find((item) => item.id === node.discipline)
     : undefined;
   const tradition = traditions.data?.find((item) => item.id === node.tradition);
-  const content = await safe(getMdxSourceByNodeId(node.id));
+
+  // 关联节点：入边（target=本节点）→ 前驱；出边（source=本节点）→ 后继；relation=related → 相关
+  const [content, inEdges, outEdges] = await Promise.all([
+    safe(getMdxSourceByNodeId(node.id)),
+    safe(getEdges({ target: node.id })),
+    safe(getEdges({ source: node.id })),
+  ]);
+
+  const edges = [...(inEdges.data ?? []), ...(outEdges.data ?? [])].filter(
+    (edge, index, arr) => arr.findIndex((e) => e.id === edge.id) === index,
+  );
+  const otherIds = new Set<number>();
+  for (const edge of edges) {
+    if (edge.targetId === node.id) otherIds.add(edge.sourceId);
+    if (edge.sourceId === node.id) otherIds.add(edge.targetId);
+  }
+  const resolved = await Promise.all([...otherIds].map((id) => getNodeById(id)));
+  const nodeMap = new Map<number, KnowledgeNode>();
+  for (const item of resolved) {
+    if (item) nodeMap.set(item.id, item);
+  }
+
+  const predecessors: RelatedItem[] = [];
+  const successors: RelatedItem[] = [];
+  const related: RelatedItem[] = [];
+  for (const edge of edges) {
+    if (edge.targetId === node.id) {
+      const other = nodeMap.get(edge.sourceId);
+      if (!other) continue;
+      if (edge.relation === "related") related.push({ node: other, relation: edge.relation });
+      else predecessors.push({ node: other, relation: edge.relation });
+    } else if (edge.sourceId === node.id) {
+      const other = nodeMap.get(edge.targetId);
+      if (!other) continue;
+      if (edge.relation === "related") related.push({ node: other, relation: edge.relation });
+      else successors.push({ node: other, relation: edge.relation });
+    }
+  }
+  const hasRelated = predecessors.length > 0 || successors.length > 0 || related.length > 0;
+  const edgesError = inEdges.error ?? outEdges.error;
 
   return (
     <div className="space-y-8">
@@ -120,6 +161,25 @@ export default async function NodeDetailPage({
           </div>
         )}
       </article>
+
+      {/* 关联知识区块：始终渲染；无边数据或后端异常时显示空态，不报错 */}
+      <section className="space-y-6 border-t border-black/10 pt-8 dark:border-white/15">
+        <h2 className="text-lg font-semibold">关联知识</h2>
+        {hasRelated ? (
+          <div className="space-y-8">
+            <RelatedNodes title="前驱 · 前置知识" items={predecessors} />
+            <RelatedNodes title="后继 · 延伸学习" items={successors} />
+            <RelatedNodes title="相关节点" items={related} />
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-black/15 px-6 py-10 text-center text-sm text-zinc-500 dark:border-white/20">
+            暂无关联节点。关系边由 Directus 管理，骨架期可能为空。
+            {edgesError && (
+              <span className="mt-1 block text-xs opacity-80">（关联服务暂不可用：{edgesError}）</span>
+            )}
+          </div>
+        )}
+      </section>
 
       {(node.sourceUrl || node.sourceId) && (
         <footer className="border-t border-black/10 pt-4 text-sm text-zinc-500 dark:border-white/15">
