@@ -67,6 +67,9 @@ services:
       - DATABASE_URL=mysql+pymysql://root:${MYSQL_ROOT_PASSWORD:-password}@mysql:3306/${MYSQL_DATABASE:-world_knowledge}
       - DIRECTUS_URL=http://directus:8055
       - MEILISEARCH_HOST=http://meilisearch:7700
+      # 与 meilisearch 服务的 MEILI_MASTER_KEY 同源：master key 启用后缺 key 会 401，
+      # 搜索端点将恒降级（200 但命中 0）。此处与 meilisearch 用同一默认值保持一致。
+      - MEILISEARCH_API_KEY=${MEILI_MASTER_KEY:-change-me-master-key}
     networks:
       - wk
     depends_on:
