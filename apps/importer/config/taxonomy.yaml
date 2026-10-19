@@ -131,3 +131,271 @@ disciplines:
 
       # ---- 学前阶段样例（儿科子树，人工钉 stage=preschool）----
       - { qid: Q123028, expect_zh: 小儿科, tradition: empirical, limit: 5, min_sitelinks: 5, stage: preschool }
+
+  # ============================================================
+  # 其余 11 学科（任务书 07 · 种子整理）
+  #
+  # 选种原则：
+  # 1. 先覆盖学科主线，再补交叉线；每学科 16+ 个根条目，不做关键词猜测。
+  # 2. QID 与中文标签逐条用 Wikidata 实体接口核对；expect_zh 为核对值。
+  # 3. 站点链接数与中文维基条目在挑种时逐条检查；无中文标签/中文条目的候选不放入。
+  # 4. include_subclasses 只给「分类型概念」打开（艺术、音乐、宗教、体育、游戏等），
+  #    学科/工程型种子保持关闭，避免 Wikidata 的 P279 噪声。
+  # 5. stage 只钉种子条目本身，用于给各学科补 research / change / preschool 样例；
+  #    不向子树扩散（与 health_medicine 的做法一致）。
+  # ============================================================
+
+  language_communication:
+    note: 语言、语言学与传播；主线覆盖「语言—文字—言语行为—翻译—媒介」
+    seeds:
+      - { qid: Q315, expect_zh: 语言, tradition: experiential, limit: 6, min_sitelinks: 20 }
+      - { qid: Q8162, expect_zh: 语言学, tradition: empirical, limit: 6, min_sitelinks: 20 }
+      - { qid: Q11024, expect_zh: 沟通, tradition: empirical, limit: 5, min_sitelinks: 15 }
+      - { qid: Q8091, expect_zh: 语法, tradition: speculative, limit: 5, min_sitelinks: 15 }
+      - { qid: Q8192, expect_zh: 书写系统, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      # Q9779 的中文标签是「全音素文字」（alphabet 的音素文字义），不是泛称「字母表」
+      - { qid: Q9779, expect_zh: 全音素文字, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q35395, expect_zh: 语音学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q39645, expect_zh: 語義學, tradition: speculative, limit: 4, min_sitelinks: 8 }
+      - { qid: Q7553, expect_zh: 翻译, tradition: experiential, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q34228, expect_zh: 手语, tradition: experiential, limit: 4, min_sitelinks: 6 }
+      - { qid: Q81009, expect_zh: 修辞学, tradition: speculative, limit: 4, min_sitelinks: 6 }
+      - { qid: Q11030, expect_zh: 新闻学, tradition: experiential, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q11033, expect_zh: 大众媒体, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q160845, expect_zh: 社会语言学, tradition: empirical, limit: 4, min_sitelinks: 6, stage: research }
+      - { qid: Q6499736, expect_zh: 词彙, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q3685487, expect_zh: 人际沟通, tradition: experiential, limit: 4, min_sitelinks: 5 }
+      - { qid: Q36192, expect_zh: 民俗, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      # 学前样例：儿歌是语言传统在「玩中学」阶段的入口
+      - { qid: Q1123037, expect_zh: 儿歌, tradition: experiential, limit: 4, min_sitelinks: 5, stage: preschool }
+
+  thinking_humanities:
+    note: 思维与人文；主线覆盖「哲学—逻辑—伦理—历史—文学—艺术—宗教」
+    seeds:
+      - { qid: Q5891, expect_zh: 哲学, tradition: speculative, limit: 6, min_sitelinks: 25 }
+      - { qid: Q8078, expect_zh: 逻辑学, tradition: speculative, limit: 5, min_sitelinks: 15 }
+      - { qid: Q9465, expect_zh: 伦理学, tradition: speculative, limit: 5, min_sitelinks: 15 }
+      - { qid: Q35986, expect_zh: 美学, tradition: speculative, limit: 4, min_sitelinks: 10 }
+      - { qid: Q9471, expect_zh: 知识论, tradition: speculative, limit: 4, min_sitelinks: 10 }
+      - { qid: Q9418, expect_zh: 心理学, tradition: empirical, limit: 6, min_sitelinks: 20 }
+      - { qid: Q309, expect_zh: 历史, tradition: empirical, limit: 6, min_sitelinks: 25 }
+      # 文学/艺术/音乐/宗教是分类型概念，子类（诗歌、绘画、音乐类型、具体宗教）才是内容主体
+      - { qid: Q8242, expect_zh: 文学, tradition: experiential, limit: 5, min_sitelinks: 20, include_subclasses: true }
+      - { qid: Q735, expect_zh: 艺术, tradition: experiential, limit: 5, min_sitelinks: 20, include_subclasses: true }
+      - { qid: Q638, expect_zh: 音乐, tradition: experiential, limit: 5, min_sitelinks: 20, include_subclasses: true }
+      - { qid: Q9174, expect_zh: 宗教, tradition: devotional, limit: 5, min_sitelinks: 20, include_subclasses: true }
+      - { qid: Q843894, expect_zh: 批判性思维, tradition: speculative, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q23498, expect_zh: 考古学, tradition: empirical, limit: 4, min_sitelinks: 10, stage: research }
+      - { qid: Q23407, expect_zh: 精神哲学, tradition: speculative, limit: 4, min_sitelinks: 8 }
+      - { qid: Q482, expect_zh: 诗歌, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q131539, expect_zh: 儿童文学, tradition: experiential, limit: 4, min_sitelinks: 8, stage: preschool }
+      - { qid: Q9134, expect_zh: 神话, tradition: devotional, limit: 4, min_sitelinks: 10 }
+
+  education_development:
+    note: 教育与人的发展；覆盖「教育—教学—学习—课程—心理发展—职业教育」
+    seeds:
+      # 教育/幼儿园等分类型概念打开子类，才能拿到初等/中等/高等教育等内容
+      - { qid: Q8434, expect_zh: 教育, tradition: empirical, limit: 6, min_sitelinks: 20, include_subclasses: true }
+      # 教育学描述含「实践」，会被阶段规则误判为 change，这里人工钉回 learning
+      - { qid: Q7922, expect_zh: 教育学, tradition: empirical, limit: 5, min_sitelinks: 15, stage: learning }
+      - { qid: Q133500, expect_zh: 学习, tradition: experiential, limit: 5, min_sitelinks: 12 }
+      - { qid: Q352842, expect_zh: 教学, tradition: empirical, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q3914, expect_zh: 学校, tradition: empirical, limit: 4, min_sitelinks: 15 }
+      - { qid: Q3918, expect_zh: 大学, tradition: empirical, limit: 4, min_sitelinks: 15 }
+      - { qid: Q37226, expect_zh: 教师, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q207137, expect_zh: 课程, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q59157, expect_zh: 教育心理学, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+      - { qid: Q175002, expect_zh: 发展心理学, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+      - { qid: Q2200417, expect_zh: 思维过程, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q212105, expect_zh: 特殊教育, tradition: experiential, limit: 4, min_sitelinks: 6 }
+      - { qid: Q6869278, expect_zh: 职业教育, tradition: experiential, limit: 4, min_sitelinks: 6 }
+      - { qid: Q1472221, expect_zh: 学前教育, tradition: empirical, limit: 4, min_sitelinks: 8, stage: preschool }
+      - { qid: Q126807, expect_zh: 幼儿园, tradition: empirical, limit: 4, min_sitelinks: 10, stage: preschool }
+      - { qid: Q254554, expect_zh: 繪本, tradition: experiential, limit: 4, min_sitelinks: 6, stage: preschool }
+      - { qid: Q8236, expect_zh: 識字, tradition: experiential, limit: 4, min_sitelinks: 10 }
+
+  society_governance:
+    note: 社会与治理；覆盖「社会—政治—法律—公共行政—国际关系—公共政策」
+    seeds:
+      - { qid: Q8425, expect_zh: 社会, tradition: holistic, limit: 6, min_sitelinks: 20 }
+      - { qid: Q21201, expect_zh: 社会学, tradition: empirical, limit: 6, min_sitelinks: 20, stage: research }
+      - { qid: Q7163, expect_zh: 政治, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q7188, expect_zh: 政府, tradition: empirical, limit: 5, min_sitelinks: 15 }
+      - { qid: Q7748, expect_zh: 法律, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q7174, expect_zh: 民主, tradition: speculative, limit: 5, min_sitelinks: 15 }
+      - { qid: Q8458, expect_zh: 人权, tradition: speculative, limit: 4, min_sitelinks: 12 }
+      - { qid: Q31728, expect_zh: 公共行政, tradition: empirical, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q166542, expect_zh: 国际关系, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q23404, expect_zh: 人类学, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q546113, expect_zh: 公共政策, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q205665, expect_zh: 社会规范, tradition: experiential, limit: 4, min_sitelinks: 6 }
+      - { qid: Q42138, expect_zh: 公民权, tradition: speculative, limit: 4, min_sitelinks: 8 }
+      - { qid: Q7755, expect_zh: 宪法, tradition: speculative, limit: 4, min_sitelinks: 12 }
+      - { qid: Q40231, expect_zh: 选举, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q1889, expect_zh: 外交, tradition: empirical, limit: 4, min_sitelinks: 10 }
+
+  economy_business:
+    note: 经济与商业；覆盖「经济—金融—市场—企业—管理—贸易」
+    seeds:
+      - { qid: Q8134, expect_zh: 经济学, tradition: speculative, limit: 6, min_sitelinks: 20, stage: research }
+      - { qid: Q159810, expect_zh: 经济, tradition: holistic, limit: 5, min_sitelinks: 12 }
+      - { qid: Q4830453, expect_zh: 企业, tradition: experiential, limit: 5, min_sitelinks: 12 }
+      - { qid: Q783794, expect_zh: 公司, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q1368, expect_zh: 货币, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q601401, expect_zh: 贸易, tradition: experiential, limit: 4, min_sitelinks: 12 }
+      - { qid: Q43015, expect_zh: 金融, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q39809, expect_zh: 市场营销, tradition: experiential, limit: 4, min_sitelinks: 8, stage: change }
+      - { qid: Q2920921, expect_zh: 管理学, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q4116214, expect_zh: 会计学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q37654, expect_zh: 市场, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q22687, expect_zh: 银行, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q4290, expect_zh: 投资, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q3908516, expect_zh: 创业, tradition: experiential, limit: 4, min_sitelinks: 6, stage: change }
+      - { qid: Q8148, expect_zh: 工业, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q8161, expect_zh: 稅, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q166656, expect_zh: 供给和需求, tradition: speculative, limit: 4, min_sitelinks: 6 }
+      - { qid: Q7181, expect_zh: 全球化, tradition: holistic, limit: 4, min_sitelinks: 10 }
+
+  math_natural_sciences:
+    note: 数学与自然科学；覆盖「数理化生—天文地学—统计概率—科学方法」
+    seeds:
+      - { qid: Q395, expect_zh: 数学, tradition: speculative, limit: 6, min_sitelinks: 25 }
+      - { qid: Q413, expect_zh: 物理学, tradition: empirical, limit: 6, min_sitelinks: 25 }
+      - { qid: Q2329, expect_zh: 化学, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q420, expect_zh: 生物学, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q333, expect_zh: 天文学, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q1071, expect_zh: 地理学, tradition: empirical, limit: 4, min_sitelinks: 15 }
+      - { qid: Q1069, expect_zh: 地质学, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q12483, expect_zh: 统计学, tradition: speculative, limit: 4, min_sitelinks: 10, stage: change }
+      - { qid: Q9492, expect_zh: 概率, tradition: speculative, limit: 4, min_sitelinks: 8 }
+      - { qid: Q8087, expect_zh: 几何学, tradition: speculative, limit: 4, min_sitelinks: 10 }
+      - { qid: Q3968, expect_zh: 代数, tradition: speculative, limit: 4, min_sitelinks: 10 }
+      - { qid: Q149972, expect_zh: 微积分, tradition: speculative, limit: 4, min_sitelinks: 8 }
+      - { qid: Q41217, expect_zh: 力学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q11473, expect_zh: 热力学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q11406, expect_zh: 电磁学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q944, expect_zh: 量子力学, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+      - { qid: Q1063, expect_zh: 进化, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q7150, expect_zh: 生态学, tradition: holistic, limit: 4, min_sitelinks: 10 }
+      - { qid: Q7162, expect_zh: 遗传学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q46857, expect_zh: 科学方法, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+
+  information_computing:
+    note: 信息与计算；覆盖「计算机—软件—网络—数据—算法—人工智能」
+    seeds:
+      - { qid: Q21198, expect_zh: 计算机科学, tradition: empirical, limit: 6, min_sitelinks: 20 }
+      - { qid: Q68, expect_zh: 电子计算机, tradition: empirical, limit: 5, min_sitelinks: 20 }
+      - { qid: Q11661, expect_zh: 信息技术, tradition: empirical, limit: 5, min_sitelinks: 12 }
+      - { qid: Q7397, expect_zh: 软件, tradition: experiential, limit: 4, min_sitelinks: 12, stage: change }
+      - { qid: Q75, expect_zh: 互联网, tradition: holistic, limit: 5, min_sitelinks: 20 }
+      - { qid: Q8366, expect_zh: 算法, tradition: speculative, limit: 4, min_sitelinks: 12 }
+      - { qid: Q8513, expect_zh: 数据库, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q9143, expect_zh: 编程语言, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q11660, expect_zh: 人工智能, tradition: empirical, limit: 5, min_sitelinks: 15, stage: research }
+      - { qid: Q2539, expect_zh: 机器学习, tradition: empirical, limit: 4, min_sitelinks: 10, stage: research }
+      - { qid: Q1301371, expect_zh: 計算機網絡, tradition: holistic, limit: 4, min_sitelinks: 10 }
+      - { qid: Q8789, expect_zh: 密码学, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q9135, expect_zh: 操作系统, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q131222, expect_zh: 信息论, tradition: speculative, limit: 4, min_sitelinks: 6 }
+      - { qid: Q2374463, expect_zh: 数据科学, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q3510521, expect_zh: 计算机安全, tradition: empirical, limit: 4, min_sitelinks: 6 }
+
+  engineering_construction:
+    note: 工程与建造；覆盖「工程—建造—土木/机械/电气—建筑—基础设施」
+    seeds:
+      - { qid: Q11023, expect_zh: 工程学, tradition: empirical, limit: 6, min_sitelinks: 20 }
+      - { qid: Q3875186, expect_zh: 施工, tradition: experiential, limit: 4, min_sitelinks: 10, stage: change }
+      - { qid: Q77590, expect_zh: 土木工程, tradition: empirical, limit: 5, min_sitelinks: 12, stage: change }
+      - { qid: Q101333, expect_zh: 机械工程, tradition: empirical, limit: 4, min_sitelinks: 10, stage: change }
+      - { qid: Q43035, expect_zh: 电气工程学, tradition: empirical, limit: 4, min_sitelinks: 10, stage: change }
+      - { qid: Q12271, expect_zh: 建筑, tradition: speculative, limit: 5, min_sitelinks: 20 }
+      - { qid: Q12280, expect_zh: 桥, tradition: empirical, limit: 4, min_sitelinks: 12, include_subclasses: true }
+      - { qid: Q41176, expect_zh: 建筑物, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q34442, expect_zh: 道路, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q228736, expect_zh: 材料科学, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+      - { qid: Q187939, expect_zh: 制造业, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q11019, expect_zh: 机械, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q11379, expect_zh: 能量, tradition: empirical, limit: 4, min_sitelinks: 15 }
+      - { qid: Q7590, expect_zh: 运输, tradition: empirical, limit: 4, min_sitelinks: 15, include_subclasses: true }
+      - { qid: Q69883, expect_zh: 城市规划, tradition: holistic, limit: 4, min_sitelinks: 8 }
+      - { qid: Q633538, expect_zh: 结构工程, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q1130265, expect_zh: 水利工程, tradition: empirical, limit: 4, min_sitelinks: 6 }
+
+  agriculture_food:
+    note: 农业与食品；覆盖「农业—作物—畜牧渔业—土壤灌溉—食品加工与饮食」
+    seeds:
+      # 农业是分类型概念，打开子类拿到有机农业、可持续农业等分支
+      - { qid: Q11451, expect_zh: 农业, tradition: holistic, limit: 6, min_sitelinks: 15, include_subclasses: true, stage: change }
+      - { qid: Q2095, expect_zh: 食物, tradition: empirical, limit: 5, min_sitelinks: 20, stage: preschool }
+      - { qid: Q235352, expect_zh: 农作物, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q5090, expect_zh: 稻, tradition: empirical, limit: 4, min_sitelinks: 15 }
+      - { qid: Q15645384, expect_zh: 小麦, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q11575, expect_zh: 玉米, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q103459, expect_zh: 家畜, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q14373, expect_zh: 捕鱼, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q38112, expect_zh: 林业, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q48803, expect_zh: 園藝, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q36133, expect_zh: 土壤, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q11453, expect_zh: 灌溉, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q83323, expect_zh: 肥料, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q627371, expect_zh: 食品加工, tradition: experiential, limit: 4, min_sitelinks: 6, stage: change }
+      - { qid: Q38695, expect_zh: 烹饪, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q2138622, expect_zh: 营养作用, tradition: empirical, limit: 4, min_sitelinks: 8, stage: research }
+      - { qid: Q41760, expect_zh: 发酵, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q909821, expect_zh: 食品卫生, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q6097, expect_zh: 茶, tradition: experiential, limit: 4, min_sitelinks: 15 }
+      - { qid: Q282, expect_zh: 葡萄酒, tradition: experiential, limit: 4, min_sitelinks: 12 }
+
+  defense_security:
+    note: 国防与安全；覆盖「军事—战争—军种—武器—国防—安全治理」
+    seeds:
+      - { qid: Q8473, expect_zh: 军队, tradition: empirical, limit: 6, min_sitelinks: 15 }
+      # 战争是分类型概念，子类（内战、世界大战等）是内容主体
+      - { qid: Q198, expect_zh: 战争, tradition: empirical, limit: 6, min_sitelinks: 20, include_subclasses: true }
+      - { qid: Q37726, expect_zh: 陆军, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q728, expect_zh: 武器, tradition: empirical, limit: 4, min_sitelinks: 12, include_subclasses: true }
+      - { qid: Q219087, expect_zh: 军事战略, tradition: speculative, limit: 4, min_sitelinks: 6, stage: change }
+      - { qid: Q17991228, expect_zh: 国防, tradition: empirical, limit: 4, min_sitelinks: 5 }
+      - { qid: Q35535, expect_zh: 警察机构, tradition: empirical, limit: 4, min_sitelinks: 12 }
+      - { qid: Q4168000, expect_zh: 軍事情報, tradition: empirical, limit: 4, min_sitelinks: 6, stage: research }
+      - { qid: Q12802, expect_zh: 核武器, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q12876, expect_zh: 坦克, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q17205, expect_zh: 航空母舰, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q974850, expect_zh: 导弹, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q57821, expect_zh: 防御工事, tradition: experiential, limit: 4, min_sitelinks: 6 }
+      - { qid: Q4508, expect_zh: 海军, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q61883, expect_zh: 空军, tradition: empirical, limit: 4, min_sitelinks: 8 }
+      - { qid: Q7283, expect_zh: 恐怖主义, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q849340, expect_zh: 网络战, tradition: empirical, limit: 4, min_sitelinks: 6 }
+      - { qid: Q454, expect_zh: 和平, tradition: speculative, limit: 4, min_sitelinks: 12 }
+
+  life_experience:
+    note: 生活与体验；覆盖「日常—家庭—衣食住行—休闲—情感—仪式」
+    seeds:
+      - { qid: Q1129653, expect_zh: 日常生活, tradition: experiential, limit: 5, min_sitelinks: 8 }
+      # 家庭是分类型概念，子类（核心家庭、大家庭等）是内容主体
+      - { qid: Q8436, expect_zh: 家庭, tradition: experiential, limit: 5, min_sitelinks: 15, include_subclasses: true }
+      - { qid: Q3947, expect_zh: 住宅, tradition: experiential, limit: 4, min_sitelinks: 12 }
+      - { qid: Q11460, expect_zh: 服装, tradition: experiential, limit: 4, min_sitelinks: 12 }
+      - { qid: Q12684, expect_zh: 时尚, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q180910, expect_zh: 休闲, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q61509, expect_zh: 旅行, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q49389, expect_zh: 旅游, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      # 体育/游戏/舞蹈/摄影是分类型概念，子类（具体运动、游戏、舞种、摄影类型）是内容主体
+      - { qid: Q349, expect_zh: 体育, tradition: experiential, limit: 5, min_sitelinks: 15, include_subclasses: true, stage: change }
+      - { qid: Q11410, expect_zh: 游戏, tradition: experiential, limit: 5, min_sitelinks: 12, include_subclasses: true, stage: preschool }
+      - { qid: Q11422, expect_zh: 玩具, tradition: experiential, limit: 4, min_sitelinks: 12, include_subclasses: true, stage: preschool }
+      - { qid: Q11875349, expect_zh: 遊樂場, tradition: experiential, limit: 4, min_sitelinks: 8, stage: preschool }
+      - { qid: Q47728, expect_zh: 爱好, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q11639, expect_zh: 舞蹈, tradition: experiential, limit: 4, min_sitelinks: 10, include_subclasses: true }
+      - { qid: Q8, expect_zh: 快乐, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q9415, expect_zh: 情绪, tradition: empirical, limit: 4, min_sitelinks: 10, stage: research }
+      - { qid: Q316, expect_zh: 爱, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      - { qid: Q491, expect_zh: 友情, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q35831, expect_zh: 睡眠, tradition: empirical, limit: 4, min_sitelinks: 10 }
+      - { qid: Q132241, expect_zh: 节日, tradition: experiential, limit: 4, min_sitelinks: 8 }
+      - { qid: Q189819, expect_zh: 仪式, tradition: devotional, limit: 4, min_sitelinks: 8 }
+      - { qid: Q8445, expect_zh: 婚姻, tradition: experiential, limit: 4, min_sitelinks: 10 }
+      # 标签「幼儿监护」天然命中学前规则；这里钉回 learning，避免把养育整体缩窄为学前
+      - { qid: Q1217379, expect_zh: 幼儿监护, tradition: experiential, limit: 4, min_sitelinks: 8, stage: learning }
+      - { qid: Q11633, expect_zh: 摄影, tradition: experiential, limit: 4, min_sitelinks: 10, include_subclasses: true, stage: change }
