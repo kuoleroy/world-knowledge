@@ -1,20 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getDisciplines, getStages } from "@/lib/api/fastapi";
+import { getCategories } from "@/lib/api/directus";
+import { getStages } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 import { DisciplineGrid } from "@/components/DisciplineGrid";
 import { ErrorNotice } from "@/components/ErrorNotice";
 
 export default async function StagePage({ params }: { params: Promise<{ stage: string }> }) {
   const { stage: stageId } = await params;
-  const [stages, disciplines] = await Promise.all([safe(getStages()), safe(getDisciplines())]);
+  const [stages, categories] = await Promise.all([safe(getStages()), safe(getCategories(stageId))]);
 
   // 阶段骨架已就绪但 id 非法 → 404；骨架未就绪（后端不可达）则降级提示
   const stage = stages.data?.find((item) => item.id === stageId);
   if (stages.data && !stage) notFound();
 
-  const error = stages.error ?? disciplines.error;
+  const error = stages.error ?? categories.error;
 
   return (
     <div className="space-y-8">
@@ -42,9 +43,16 @@ export default async function StagePage({ params }: { params: Promise<{ stage: s
       )}
 
       <section>
-        <h2 className="mb-4 text-sm font-medium text-zinc-500">第二步 · 选择学科</h2>
-        {disciplines.data && (
-          <DisciplineGrid disciplines={disciplines.data} basePath={`/stage/${stageId}`} />
+        <h2 className="mb-4 text-sm font-medium text-zinc-500">第二步 · 选择大类</h2>
+        {categories.data && categories.data.length > 0 && (
+          <DisciplineGrid
+            disciplines={categories.data.map((c) => ({
+              id: c.key,
+              nameZh: c.name,
+              displayName: c.description,
+            }))}
+            basePath={`/stage/${stageId}`}
+          />
         )}
       </section>
     </div>

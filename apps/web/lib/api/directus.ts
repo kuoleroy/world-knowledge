@@ -33,6 +33,28 @@ export function getNodesFromDirectus(query: DirectusListQuery = {}): Promise<Kno
   return fetchDirectus<KnowledgeNode[]>(`/items/nodes${buildQuery(query)}`, DIRECTUS_TOKEN);
 }
 
+/** categories 集合记录（阶段大类词表；在 Directus 后台维护，门户按阶段渲染）。 */
+export interface Category {
+  key: string;
+  stage: string;
+  name: string;
+  description: string | null;
+  sort: number | null;
+}
+
+/** 读取阶段大类词表。传 stage 则只取该阶段；始终按 (阶段, 排序) 取。 */
+export function getCategories(stage?: string): Promise<Category[]> {
+  return fetchDirectus<Category[]>(
+    `/items/categories${buildQuery({
+      fields: "key,stage,name,description,sort",
+      filter: stage ? { stage: { _eq: stage } } : undefined,
+      limit: -1,
+      sort: "stage,sort",
+    })}`,
+    DIRECTUS_TOKEN,
+  );
+}
+
 /** Directus contents 集合记录（列名与 Directus 建表一致，snake_case）。 */
 export interface DirectusContent {
   id: number;

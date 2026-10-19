@@ -1,14 +1,10 @@
 // FastAPI /v1 端点封装（骨架 + 只读节点）
-import type { Discipline, KnowledgeEdge, KnowledgeNode, Stage, Tradition } from "@wk/types";
+import type { KnowledgeEdge, KnowledgeNode, Stage, Tradition } from "@wk/types";
 
 import { fetchFastApi } from "./client";
 
 export function getStages(): Promise<Stage[]> {
   return fetchFastApi<Stage[]>("/stages");
-}
-
-export function getDisciplines(): Promise<Discipline[]> {
-  return fetchFastApi<Discipline[]>("/disciplines");
 }
 
 export function getTraditions(): Promise<Tradition[]> {

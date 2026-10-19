@@ -9,8 +9,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "世界知识门户",
   description:
-    "一座人类知识的公共广场：按「阶段 × 学科」导航，不分国家、阶层、年龄，人人可及。",
+    "一座人类知识的公共广场：按「阶段 × 大类」导航，不分国家、阶层、年龄，人人可及。",
 };
+
+// 全部路由改为请求时渲染（不在 docker build 阶段预渲染）。
+// 原因：构建发生在镜像构建阶段，此时 compose 服务名 api:8000 不可达，
+// 服务端组件若在构建期取数会失败，错误会被烘焙进静态 HTML（首页/学科页曾如此）。
+// 改为请求时渲染后，取数发生在运行中的 web 容器内，api:8000 可正常解析。
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -25,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <span className="text-lg font-semibold">世界知识门户</span>
               <span className="hidden text-xs text-zinc-500 sm:inline">WorldKnowledge</span>
             </Link>
-            <span className="text-xs text-zinc-500">按阶段 × 学科导航</span>
+            <span className="text-xs text-zinc-500">按阶段 × 大类导航</span>
           </div>
         </header>
 

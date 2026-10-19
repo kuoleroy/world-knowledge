@@ -2,6 +2,32 @@ version: 1
 directus: 12.5.0
 vendor: mysql
 collections:
+  - collection: categories
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      autosave_revision_interval: null
+      collapse: open
+      collection: categories
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: category
+      item_duplication_fields: null
+      note: 阶段大类词表：可在后台自行增删改；门户按阶段渲染
+      preview_url: null
+      singleton: false
+      sort: 3
+      sort_field: null
+      status: active
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: categories
   - collection: contents
     meta:
       accountability: all
@@ -87,6 +113,215 @@ collections:
     schema:
       name: nodes
 fields:
+  - collection: categories
+    field: key
+    type: string
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: key
+      group: null
+      hidden: false
+      interface: input
+      note: 稳定标识（URL 与节点归属用），建后勿改
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: key
+      table: categories
+      data_type: varchar
+      default_value: null
+      max_length: 64
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_indexed: false
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: categories
+    field: stage
+    type: string
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: stage
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: 归属阶段
+      options:
+        choices:
+          - text: 学前阶段
+            value: preschool
+          - text: 学习阶段
+            value: learning
+          - text: 研究阶段
+            value: research
+          - text: 改变阶段
+            value: change
+      readonly: false
+      required: false
+      searchable: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: stage
+      table: categories
+      data_type: varchar
+      default_value: null
+      max_length: 64
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: categories
+    field: name
+    type: string
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: 中文名（门户显示）
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: name
+      table: categories
+      data_type: varchar
+      default_value: null
+      max_length: 128
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: categories
+    field: description
+    type: text
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input-multiline
+      note: 一句话说明
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: description
+      table: categories
+      data_type: text
+      default_value: null
+      max_length: 65535
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: categories
+    field: sort
+    type: integer
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: false
+      interface: input
+      note: 排序（小的在前）
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: sort
+      table: categories
+      data_type: int
+      default_value: null
+      max_length: null
+      numeric_precision: 10
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: contents
     field: id
     type: integer
@@ -839,44 +1074,22 @@ fields:
     meta:
       collection: nodes
       conditions: null
-      display: null
-      display_options: null
+      display: related-values
+      display_options:
+        template: '{{ name }}'
       field: discipline
       group: null
       hidden: false
-      interface: select-dropdown
-      note: 归属学科（对齐 skeleton ids）
+      interface: select-dropdown-m2o
+      note: 所属大类（引用 categories 集合；可在后台新增大类后直接选择）
       options:
-        choices:
-          - text: 语言与沟通
-            value: language_communication
-          - text: 思维与人文
-            value: thinking_humanities
-          - text: 教育与人的发展
-            value: education_development
-          - text: 社会与治理
-            value: society_governance
-          - text: 经济与商业
-            value: economy_business
-          - text: 数学与自然科学
-            value: math_natural_sciences
-          - text: 信息与计算
-            value: information_computing
-          - text: 工程与建造
-            value: engineering_construction
-          - text: 农业与食品
-            value: agriculture_food
-          - text: 健康与医学
-            value: health_medicine
-          - text: 国防与安全
-            value: defense_security
-          - text: 生活与体验
-            value: life_experience
+        template: '{{ name }}'
       readonly: false
       required: false
       searchable: true
       sort: 7
-      special: null
+      special:
+        - m2o
       translations: null
       validation: null
       validation_message: null
@@ -891,13 +1104,13 @@ fields:
       numeric_scale: null
       is_nullable: true
       is_unique: false
-      is_indexed: false
+      is_indexed: true
       is_primary_key: false
       is_generated: false
       generation_expression: null
       has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
+      foreign_key_table: categories
+      foreign_key_column: key
   - collection: nodes
     field: tradition
     type: string
@@ -1521,5 +1734,26 @@ relations:
       foreign_key_table: nodes
       foreign_key_column: id
       constraint_name: edges_target_node_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: nodes
+    field: discipline
+    related_collection: categories
+    meta:
+      junction_field: null
+      many_collection: nodes
+      many_field: discipline
+      one_allowed_collections: null
+      one_collection: categories
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: nodes
+      column: discipline
+      foreign_key_table: categories
+      foreign_key_column: key
+      constraint_name: nodes_discipline_foreign
       on_update: NO ACTION
       on_delete: NO ACTION

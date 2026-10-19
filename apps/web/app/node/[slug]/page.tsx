@@ -6,7 +6,8 @@ import { MdxContent } from "@/components/MdxContent";
 import { RelatedNodes, type RelatedItem } from "@/components/RelatedNodes";
 import type { KnowledgeNode } from "@wk/types";
 import { getMdxSourceByNodeId } from "@/lib/api/contents";
-import { getDisciplines, getEdges, getNodeById, getNodeBySlug, getStages, getTraditions } from "@/lib/api/fastapi";
+import { getCategories } from "@/lib/api/directus";
+import { getEdges, getNodeById, getNodeBySlug, getStages, getTraditions } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 
 export default async function NodeDetailPage({
@@ -16,9 +17,9 @@ export default async function NodeDetailPage({
 }) {
   const { slug } = await params;
 
-  const [stages, disciplines, traditions, nodeResult] = await Promise.all([
+  const [stages, categories, traditions, nodeResult] = await Promise.all([
     safe(getStages()),
-    safe(getDisciplines()),
+    safe(getCategories()),
     safe(getTraditions()),
     safe(getNodeBySlug(slug)),
   ]);
@@ -39,8 +40,8 @@ export default async function NodeDetailPage({
 
   const node = nodeResult.data;
   const stage = node.stage ? stages.data?.find((item) => item.id === node.stage) : undefined;
-  const discipline = node.discipline
-    ? disciplines.data?.find((item) => item.id === node.discipline)
+  const category = node.discipline
+    ? categories.data?.find((item) => item.key === node.discipline)
     : undefined;
   const tradition = traditions.data?.find((item) => item.id === node.tradition);
 
@@ -106,13 +107,13 @@ export default async function NodeDetailPage({
                 href={`/stage/${node.stage}/${node.discipline}`}
                 className="hover:text-foreground"
               >
-                {discipline?.nameZh ?? node.discipline}
+                {category?.name ?? node.discipline}
               </Link>
             </>
           ) : (
             <>
               <span className="mx-2">/</span>
-              <span>{discipline?.nameZh ?? node.discipline}</span>
+              <span>{category?.name ?? node.discipline}</span>
             </>
           ))}
         <span className="mx-2">/</span>
@@ -134,7 +135,7 @@ export default async function NodeDetailPage({
           )}
           {node.discipline && (
             <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
-              学科 · {discipline?.nameZh ?? node.discipline}
+              大类 · {category?.name ?? node.discipline}
             </span>
           )}
           <span
@@ -181,23 +182,6 @@ export default async function NodeDetailPage({
         )}
       </section>
 
-      {(node.sourceUrl || node.sourceId) && (
-        <footer className="border-t border-black/10 pt-4 text-sm text-zinc-500 dark:border-white/15">
-          <span>来源：</span>
-          {node.sourceUrl ? (
-            <a
-              href={node.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              {node.sourceId ?? node.sourceUrl}
-            </a>
-          ) : (
-            <span>{node.sourceId}</span>
-          )}
-        </footer>
-      )}
     </div>
   );
 }

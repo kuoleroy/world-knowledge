@@ -1,13 +1,18 @@
 import Link from "next/link";
 
-import type { Discipline } from "@wk/types";
+/** 导航网格项（学科或阶段大类通用：id 为 URL 段，nameZh 为中文名，displayName 为副标题）。 */
+export interface NavGridItem {
+  id: string;
+  nameZh: string;
+  displayName?: string | null;
+}
 
-/** 12 学科大类网格。basePath 决定跳往内容列表的路径前缀。 */
+/** 导航大类网格。basePath 决定跳往内容列表的路径前缀。 */
 export function DisciplineGrid({
   disciplines,
   basePath,
 }: {
-  disciplines: Discipline[];
+  disciplines: NavGridItem[];
   basePath: string;
 }) {
   return (

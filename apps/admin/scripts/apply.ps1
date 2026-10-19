@@ -29,7 +29,7 @@ $Service = 'directus'
 $RemoteSnapshot = '/directus/uploads/schema-snapshot.yaml'
 # Directus 内置的 Public 政策（固定 UUID）
 $PublicPolicy = 'abf8a154-5b1c-4a46-ac9c-7300570f4f17'
-$ReadCollections = @('nodes', 'contents')
+$ReadCollections = @('nodes', 'contents', 'categories')
 
 function Compose { docker compose -f $ComposeFile @args }
 

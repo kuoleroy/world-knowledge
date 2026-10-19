@@ -1,12 +1,15 @@
 import Link from "next/link";
 
-import { getDisciplines } from "@/lib/api/fastapi";
+import { getCategories } from "@/lib/api/directus";
+import { getStages } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 import { DisciplineGrid } from "@/components/DisciplineGrid";
 import { ErrorNotice } from "@/components/ErrorNotice";
 
 export default async function DisciplineIndexPage() {
-  const disciplines = await safe(getDisciplines());
+  const [stages, categories] = await Promise.all([safe(getStages()), safe(getCategories())]);
+
+  const error = stages.error ?? categories.error;
 
   return (
     <div className="space-y-8">
@@ -16,20 +19,32 @@ export default async function DisciplineIndexPage() {
         </Link>
       </nav>
 
-      {disciplines.error && <ErrorNotice message={disciplines.error} />}
+      {error && <ErrorNotice message={error} />}
 
       <section>
-        <h1 className="text-2xl font-semibold">按学科浏览</h1>
+        <h1 className="text-2xl font-semibold">按大类浏览</h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          选择一门学科，进入它的全部知识节点。进入后可按「阶段」筛选——
-          感知 → 掌握 → 探索 → 改造，找到适合当下的入口。
+          大类由每个阶段各自定义——学前看「感性的世界切片」，学习看完整学科，
+          研究看「认识的边界」，改造看「实践的领域」。
         </p>
       </section>
 
-      <section>
-        <h2 className="mb-4 text-sm font-medium text-zinc-500">全部学科（按学科维度导航）</h2>
-        {disciplines.data && <DisciplineGrid disciplines={disciplines.data} basePath="/discipline" />}
-      </section>
+      {(stages.data ?? []).map((stage) => {
+        const items = (categories.data ?? [])
+          .filter((c) => c.stage === stage.id)
+          .map((c) => ({ id: c.key, nameZh: c.name, displayName: c.description }));
+        if (items.length === 0) return null;
+        return (
+          <section key={stage.id}>
+            <h2 className="mb-4 text-sm font-medium text-zinc-500">
+              {stage.displayName}
+              <span className="mx-2 text-zinc-300 dark:text-zinc-600">·</span>
+              {stage.coreQuestion}
+            </h2>
+            <DisciplineGrid disciplines={items} basePath="/discipline" />
+          </section>
+        );
+      })}
     </div>
   );
 }

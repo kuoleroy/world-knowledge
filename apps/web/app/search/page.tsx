@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ErrorNotice } from "@/components/ErrorNotice";
+import { getCategories } from "@/lib/api/directus";
 import { safe } from "@/lib/api/safe";
 
 import { searchNodes } from "./api";
@@ -30,14 +31,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const tradition = first(params.tradition);
 
   // 与其它页面一致：后端不可达时由 safe() 兜底，页面降级而不是崩溃
-  const result = await safe(searchNodes({ q, discipline, stage, tradition }));
+  const [result, categories] = await Promise.all([
+    safe(searchNodes({ q, discipline, stage, tradition })),
+    safe(getCategories()),
+  ]);
   const nodes = result.data?.nodes ?? [];
   const meta = result.data?.meta;
   const degraded = meta?.degraded === true;
   const total = meta?.total ?? nodes.length;
 
+  const disciplineLabel = discipline
+    ? (categories.data?.find((item) => item.key === discipline)?.name ?? discipline)
+    : "";
+
   const activeFilters = [
-    discipline && `学科 ${discipline}`,
+    discipline && `大类 ${disciplineLabel}`,
     stage && `阶段 ${stage}`,
     tradition && `传统 ${tradition}`,
   ].filter(Boolean);
@@ -55,7 +63,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <section>
         <h1 className="text-2xl font-semibold">搜索</h1>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          按标题、摘要与正文检索知识节点，可按学科 / 阶段 / 知识传统过滤。
+          按标题、摘要与正文检索知识节点，可按大类 / 阶段 / 知识传统过滤。
         </p>
 
         <form action="/search" method="get" className="mt-4 flex flex-wrap gap-2">

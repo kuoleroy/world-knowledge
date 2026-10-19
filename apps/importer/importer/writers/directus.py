@@ -8,6 +8,10 @@
 **幂等**：以 ``source_id``（= QID）为业务键先查后写——查到就 PATCH 有差异的字段，
 查不到才 POST；字段全一致则跳过。``slug`` 在表上还有 unique 约束，双保险。
 
+**discipline 只在新建时写入**（见 ``CREATE_ONLY_FIELDS``）：自 13.19 起，节点归属的
+「大类」由 Directus 后台的 ``categories`` 集合管理（门户按阶段渲染），重跑 push 不该把
+后台调整过的归属拉回 taxonomy.yaml 里的旧学科值。其余字段照旧按差异 PATCH。
+
 **状态**：nodes 表由 01 分支建，本模块尚未联调验证（等主控通知后再跑 push）。
 """
 
@@ -34,6 +38,11 @@ MANAGED_FIELDS = (
     "source_id",
     "source_url",
 )
+
+# 仅新建时写入、重跑 push 不纳入 PATCH 差异比对的列。
+# discipline（阶段大类）自 13.19 起改由 Directus 后台的 categories 集合管理，
+# 数据库才是权威；若这里照 PATCH，重跑 push 会把后台改过的归属拉回 taxonomy 的旧学科值。
+CREATE_ONLY_FIELDS = ("discipline",)
 
 DEFAULT_BASE_URL = "http://127.0.0.1:8055"
 TOKEN_ENV = "DIRECTUS_TOKEN"
@@ -140,7 +149,8 @@ class DirectusWriter:
         changes = {
             key: value
             for key, value in payload.items()
-            if _normalise(existing.get(key)) != _normalise(value)
+            if key not in CREATE_ONLY_FIELDS
+            and _normalise(existing.get(key)) != _normalise(value)
         }
         if not changes:
             return "unchanged"

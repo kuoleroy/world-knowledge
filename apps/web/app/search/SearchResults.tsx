@@ -61,16 +61,6 @@ export function SearchResults({ nodes, snippets }: SearchResultsProps) {
                 <HighlightedSnippet markup={snippet} />
               </p>
             )}
-            {node.sourceUrl && (
-              <a
-                href={node.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-block text-xs text-zinc-500 underline hover:text-foreground"
-              >
-                来源
-              </a>
-            )}
           </li>
         );
       })}

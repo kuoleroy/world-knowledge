@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getDisciplines, getNodes, getStages, getTraditions } from "@/lib/api/fastapi";
+import { getCategories } from "@/lib/api/directus";
+import { getNodes, getStages, getTraditions } from "@/lib/api/fastapi";
 import { safe } from "@/lib/api/safe";
 import { withQuery } from "@/lib/url";
 import { ErrorNotice } from "@/components/ErrorNotice";
@@ -18,19 +19,19 @@ export default async function ContentPage({
   const { stage: stageId, discipline: disciplineId } = await params;
   const { tradition } = await searchParams;
 
-  const [stages, disciplines, traditions, nodes] = await Promise.all([
+  const [stages, categories, traditions, nodes] = await Promise.all([
     safe(getStages()),
-    safe(getDisciplines()),
+    safe(getCategories(stageId)),
     safe(getTraditions()),
     safe(getNodes({ stage: stageId, discipline: disciplineId, tradition })),
   ]);
 
   const stage = stages.data?.find((item) => item.id === stageId);
-  const discipline = disciplines.data?.find((item) => item.id === disciplineId);
+  const category = categories.data?.find((item) => item.key === disciplineId);
   if (stages.data && !stage) notFound();
-  if (disciplines.data && !discipline) notFound();
+  if (categories.data && !category) notFound();
 
-  const error = stages.error ?? disciplines.error ?? traditions.error;
+  const error = stages.error ?? categories.error ?? traditions.error;
   const basePath = `/stage/${stageId}/${disciplineId}`;
 
   const traditionChips: ChipItem[] = [
@@ -54,19 +55,21 @@ export default async function ContentPage({
           {stage?.displayName ?? stageId}
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-foreground">{discipline?.nameZh ?? disciplineId}</span>
+        <span className="text-foreground">{category?.name ?? disciplineId}</span>
       </nav>
 
       {error && <ErrorNotice message={error} />}
 
-      {discipline && (
+      {category && (
         <section>
           <h1 className="text-2xl font-semibold">
             {stage?.displayName}
             <span className="mx-2 text-zinc-300 dark:text-zinc-600">·</span>
-            {discipline.nameZh}
+            {category.name}
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">{discipline.displayName}</p>
+          {category.description && (
+            <p className="mt-1 text-sm text-zinc-500">{category.description}</p>
+          )}
         </section>
       )}
 

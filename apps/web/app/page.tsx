@@ -13,7 +13,7 @@ export default async function HomePage() {
       <section>
         <h1 className="text-2xl font-semibold">世界知识门户</h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          一座人类知识的公共广场。先选「阶段」，再选「学科」，走完感知 → 掌握 → 探索 →
+          一座人类知识的公共广场。先选「阶段」，再选「大类」，走完感知 → 掌握 → 探索 →
           改造的完整认识循环。
         </p>
       </section>
@@ -45,7 +45,7 @@ export default async function HomePage() {
             href="/discipline"
             className="rounded-full border border-black/15 px-3 py-1 text-sm text-zinc-600 transition-colors hover:border-black/40 hover:text-foreground dark:border-white/20 dark:text-zinc-400 dark:hover:border-white/40"
           >
-            或：按学科浏览 →
+            或：按大类浏览 →
           </Link>
         </div>
         {stages.data && <StageCards stages={stages.data} />}
