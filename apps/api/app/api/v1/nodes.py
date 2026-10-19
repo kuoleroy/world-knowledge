@@ -20,9 +20,10 @@ def list_nodes(
     type: str | None = None,
     stage: str | None = None,
     tradition: str | None = None,
+    slug: str | None = None,
     db: Session = Depends(get_db),
 ) -> dict:
-    """节点列表，可按 type / stage / tradition 过滤（只读）。"""
+    """节点列表，可按 type / stage / tradition / slug 过滤（只读）。"""
     try:
         stmt = select(Node)
         if type is not None:
@@ -31,6 +32,8 @@ def list_nodes(
             stmt = stmt.where(Node.stage == stage)
         if tradition is not None:
             stmt = stmt.where(Node.tradition == tradition)
+        if slug is not None:
+            stmt = stmt.where(Node.slug == slug)
         nodes = db.exec(stmt).all()
         data = [NodeOut.model_validate(n).model_dump(by_alias=True) for n in nodes]
         return success_response(data, {"total": len(data)})
