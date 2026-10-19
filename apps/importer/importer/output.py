@@ -34,6 +34,11 @@ def write_json(path: Path, payload: Any) -> None:
     _atomic_write(path, text)
 
 
+def write_text(path: Path, text: str) -> None:
+    """写原始文本（UTF-8 + LF），用于 MDX 等正文留档。"""
+    _atomic_write(path, text)
+
+
 def write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
     """写 JSONL：一行一个对象，顺序即传入顺序。"""
     lines = [json.dumps(row, ensure_ascii=False, sort_keys=False) for row in rows]
