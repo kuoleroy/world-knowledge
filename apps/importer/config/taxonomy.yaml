@@ -85,6 +85,12 @@ tradition_rules:
 disciplines:
   health_medicine:
     note: 先跑通这一个学科线：健康与医学的传统差异最典型（实证 / 整体 / 经验 / 思辨 / 信仰五条都在）
+    exclude_qids:
+      Q624477: "基督科学教会 → thinking_humanities（本学科经信仰疗法子树继承）"
+      Q131517: "欧洲酸樱桃 → agriculture_food（本学科经草药子树继承）"
+      Q147064: "黑杨 → math_natural_sciences（本学科经草药子树继承）"
+      Q165145: "夏栎 → math_natural_sciences（本学科经草药子树继承）"
+      Q41350: "葡萄柚 → agriculture_food（本学科经草药子树继承）"
     seeds:
       # ---- 实证科学线（现代医学）----
       - { qid: Q11190, expect_zh: 医学, tradition: empirical, limit: 6, min_sitelinks: 20, stage: learning }
@@ -152,6 +158,8 @@ disciplines:
     exclude_qids:
       Q12827256: "神话 → thinking_humanities（本学科经语言子树继承）"
       Q36192: "民俗 → thinking_humanities（本学科种子，归属改判给人文）"
+      Q192093: "解剖学治疗学及化学分类系统 → health_medicine（本学科经医学词表子树继承）"
+      Q199897: "医学主题词 → health_medicine（本学科经医学词表子树继承）"
     seeds:
       - { qid: Q315, expect_zh: 语言, tradition: experiential, limit: 6, min_sitelinks: 20 }
       - { qid: Q8162, expect_zh: 语言学, tradition: empirical, limit: 6, min_sitelinks: 20 }
@@ -179,6 +187,8 @@ disciplines:
     exclude_qids:
       Q7162: "遗传学 → math_natural_sciences（本学科经心理学子树继承）"
       Q590870: "电影摄影 → life_experience（本学科经艺术子树继承）"
+      Q207011: "神经科学 → health_medicine（本学科经心理学子树继承）"
+      Q183257: "心理治疗 → health_medicine（本学科经心理学子树继承）"
     seeds:
       - { qid: Q5891, expect_zh: 哲学, tradition: speculative, limit: 6, min_sitelinks: 25 }
       - { qid: Q8078, expect_zh: 逻辑学, tradition: speculative, limit: 5, min_sitelinks: 15 }
@@ -201,6 +211,11 @@ disciplines:
 
   education_development:
     note: 教育与人的发展；覆盖「教育—教学—学习—课程—心理发展—职业教育」
+    exclude_qids:
+      Q131594: "泡利不相容原理 → math_natural_sciences（本学科经科学教育子树继承）"
+      Q282250: "感质 → thinking_humanities（本学科经思维子树继承）"
+      Q1135949: "人的堕落 → thinking_humanities（本学科经通识/宗教子树继承）"
+      Q9018172: "好色一代男 → 纯实体噪声，剔除（不归属任何学科）"
     seeds:
       # 教育/幼儿园等分类型概念打开子类，才能拿到初等/中等/高等教育等内容
       - { qid: Q8434, expect_zh: 教育, tradition: empirical, limit: 6, min_sitelinks: 20, include_subclasses: true }
@@ -228,6 +243,7 @@ disciplines:
       Q131222: "信息论 → thinking_humanities（本学科经治理/社会学子树继承）"
       Q177708: "更年期 → education_development（本学科经社会学子树继承）"
       Q69883: "城市规划 → engineering_construction（本学科经社会子树继承）"
+      Q162527: "重商主义 → economy_business（本学科经经济学子树继承）"
     seeds:
       - { qid: Q8425, expect_zh: 社会, tradition: holistic, limit: 6, min_sitelinks: 20 }
       - { qid: Q21201, expect_zh: 社会学, tradition: empirical, limit: 6, min_sitelinks: 20, stage: research }
@@ -251,6 +267,11 @@ disciplines:
     exclude_qids:
       Q12483: "统计学 → math_natural_sciences（本学科经经济学子树继承）"
       Q12739: "核动力 → engineering_construction（本学科经能源/经济子树继承）"
+      Q614304: "药学 → health_medicine（本学科经产业子树继承）"
+      Q37312: "互联网电影数据库 → information_computing（本学科经企业子树继承）"
+      Q127043: "加尔米施-帕滕基兴 → 纯实体噪声，剔除（城市，不归属任何学科）"
+      Q266230: "奥伯斯多夫 → 纯实体噪声，剔除（市镇，不归属任何学科）"
+      Q20200811: "粉紅裝飾 → 纯实体噪声，剔除（不归属任何学科）"
     seeds:
       - { qid: Q8134, expect_zh: 经济学, tradition: speculative, limit: 6, min_sitelinks: 20, stage: research }
       - { qid: Q159810, expect_zh: 经济, tradition: holistic, limit: 5, min_sitelinks: 12 }
@@ -280,6 +301,10 @@ disciplines:
       Q514: "解剖学 → health_medicine（本学科经生物学子树继承）"
       Q46857: "科学方法 → thinking_humanities（本学科种子，归属改判给人文）"
       Q8078: "逻辑学 → thinking_humanities（本学科经数学子树继承）"
+      Q1622420: "高可用性 → information_computing（本学科经计算子树继承）"
+      Q2115: "可扩展标记语言 → information_computing（本学科经计算子树继承）"
+      Q396338: "農業生態學 → agriculture_food（本学科经生物学子树继承）"
+      Q37732: "人口学 → society_governance（本学科经统计/社会子树继承）"
     seeds:
       - { qid: Q395, expect_zh: 数学, tradition: speculative, limit: 6, min_sitelinks: 25 }
       - { qid: Q413, expect_zh: 物理学, tradition: empirical, limit: 6, min_sitelinks: 25 }
@@ -333,6 +358,12 @@ disciplines:
       Q7397: "软件 → information_computing（本学科经计算子树继承）"
       Q9143: "编程语言 → information_computing（本学科经计算子树继承）"
       Q80993: "软件工程 → information_computing（本学科经计算子树继承）"
+      Q9420: "思维 → thinking_humanities（本学科经认知子树继承）"
+      Q173142: "数字信号处理 → information_computing（本学科经电子子树继承）"
+      Q188913: "种植业 → agriculture_food（本学科经农业工程子树继承）"
+      Q212405: "宝洁公司 → 纯实体噪声，剔除（企业品牌，不归属任何学科）"
+      Q584601: "31种冰激凌 → 纯实体噪声，剔除（连锁品牌，不归属任何学科）"
+      Q627236: "公司市鎮 → 纯实体噪声，剔除（聚落类型，不归属任何学科）"
     seeds:
       - { qid: Q11023, expect_zh: 工程学, tradition: empirical, limit: 6, min_sitelinks: 20 }
       - { qid: Q3875186, expect_zh: 施工, tradition: experiential, limit: 4, min_sitelinks: 10, stage: change }
@@ -356,6 +387,10 @@ disciplines:
     note: 农业与食品；覆盖「农业—作物—畜牧渔业—土壤灌溉—食品加工与饮食」
     exclude_qids:
       Q39809: "市场营销 → economy_business（本学科经农业经济子树继承）"
+      Q131610: "慕尼黑奥林匹克体育场 → engineering_construction（本学科经场馆子树继承）"
+      Q202163: "卢日尼基体育场 → engineering_construction（本学科经场馆子树继承）"
+      Q2900652: "赫利俄斯的神牛 → thinking_humanities（本学科经畜牧/神话子树继承）"
+      Q3027893: "氢分子 → math_natural_sciences（本学科经化学子树继承）"
     seeds:
       # 农业是分类型概念，打开子类拿到有机农业、可持续农业等分支
       - { qid: Q11451, expect_zh: 农业, tradition: holistic, limit: 6, min_sitelinks: 15, include_subclasses: true, stage: change }
@@ -384,6 +419,7 @@ disciplines:
     exclude_qids:
       Q35535: "警察机构 → society_governance（本学科种子，归属改判给治理）"
       Q42948: "墙 → engineering_construction（本学科经防御工事子树继承）"
+      Q749: "格罗宁根 → 纯实体噪声，剔除（城市，不归属任何学科）"
     seeds:
       - { qid: Q8473, expect_zh: 军队, tradition: empirical, limit: 6, min_sitelinks: 15 }
       # 战争是分类型概念，子类（内战、世界大战等）是内容主体
@@ -410,6 +446,8 @@ disciplines:
     exclude_qids:
       Q35473: "窗 → engineering_construction（本学科经住宅子树继承）"
       Q36794: "門 → engineering_construction（本学科经住宅子树继承）"
+      Q131482: "希吉拉 → thinking_humanities（本学科经宗教/历史子树继承）"
+      Q35525: "白宫 → 纯实体噪声，剔除（地标建筑，不归属任何学科）"
     seeds:
       - { qid: Q1129653, expect_zh: 日常生活, tradition: experiential, limit: 5, min_sitelinks: 8 }
       # 家庭是分类型概念，子类（核心家庭、大家庭等）是内容主体
