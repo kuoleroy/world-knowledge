@@ -8,6 +8,8 @@ KnowledgeNode 形状），片段以 ``meta.snippets``（``{节点 id: 带 <em> �
 随响应下发，门户据此在结果卡里显示正文摘录。
 """
 
+import re
+from collections.abc import Iterator
 from typing import Any
 
 from meilisearch import Client
@@ -25,6 +27,8 @@ SNIPPET_CROP_MARKER = "…"
 MAX_SNIPPET_CHARS = 200
 EM_OPEN = "<em>"
 EM_CLOSE = "</em>"
+# Meilisearch 的高亮标签（highlightPreTag / postTag 的默认值）
+EM_PAIR_RE = re.compile(r"<em>(.*?)</em>", re.S)
 
 
 def normalize_limit(limit: int) -> int:
@@ -57,33 +61,46 @@ def build_filter(
 def trim_snippet(markup: str, limit: int = MAX_SNIPPET_CHARS) -> str:
     """把带 ``<em>`` 高亮标记的片段裁到 limit 个可见字符。
 
-    只认自己写入的 ``<em>`` / ``</em>`` 两个标签；裁剪落在标签内时补闭合标签，
-    免得门户高亮解析错乱。其余字符（含正文里的 ``<``）原样当文本返回。
+    只把**成对**的 ``<em>…</em>`` 当高亮（Meilisearch 自己插入的那一对），
+    正文里的孤立 ``<em>`` / ``</em>`` 按普通文本处理，避免拼出残缺标签；
+    门户只解析成对标签、其余按纯文本渲染。
     """
     text = markup.strip()
     if not text:
         return ""
     parts: list[str] = []
     visible = 0
-    index = 0
-    highlighted = False
-    while index < len(text) and visible < limit:
-        if text.startswith(EM_OPEN, index):
-            parts.append(EM_OPEN)
-            highlighted = True
-            index += len(EM_OPEN)
-        elif text.startswith(EM_CLOSE, index):
-            parts.append(EM_CLOSE)
-            highlighted = False
-            index += len(EM_CLOSE)
+    truncated = False
+    for highlighted, chunk in _iter_em_segments(text):
+        if visible >= limit:
+            truncated = True
+            break
+        take = chunk[: limit - visible]
+        if len(take) < len(chunk):
+            truncated = True
+        if highlighted and take:
+            parts.append(f"{EM_OPEN}{take}{EM_CLOSE}")
         else:
-            parts.append(text[index])
-            visible += 1
-            index += 1
-    if highlighted:
-        parts.append(EM_CLOSE)
-    snippet = "".join(parts)
-    return f"{snippet}{SNIPPET_CROP_MARKER}" if index < len(text) else snippet
+            parts.append(take)
+        visible += len(take)
+        if truncated:
+            break
+    snippet = "".join(parts).strip()
+    if not snippet:
+        return ""
+    return f"{snippet}{SNIPPET_CROP_MARKER}" if truncated else snippet
+
+
+def _iter_em_segments(markup: str) -> Iterator[tuple[bool, str]]:
+    """把片段拆成 (是否高亮, 文本) 序列；未成对的 ``<em>`` 留在文本里。"""
+    position = 0
+    for match in EM_PAIR_RE.finditer(markup):
+        if match.start() > position:
+            yield False, markup[position : match.start()]
+        yield True, match.group(1)
+        position = match.end()
+    if position < len(markup):
+        yield False, markup[position:]
 
 
 def _split_hit(hit: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
