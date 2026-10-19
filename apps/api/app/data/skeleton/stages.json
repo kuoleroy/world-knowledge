@@ -1,0 +1,30 @@
+[
+  {
+    "id": "preschool",
+    "displayName": "学前阶段",
+    "coreQuestion": "世界是什么？",
+    "relation": "感知、好奇、玩中学",
+    "epistemology": "感性认识"
+  },
+  {
+    "id": "learning",
+    "displayName": "学习阶段",
+    "coreQuestion": "前人发现了什么？",
+    "relation": "系统掌握已有知识",
+    "epistemology": "理性认识"
+  },
+  {
+    "id": "research",
+    "displayName": "研究阶段",
+    "coreQuestion": "还有什么不知道？",
+    "relation": "探索、质疑、创造",
+    "epistemology": "认识的新边界"
+  },
+  {
+    "id": "change",
+    "displayName": "改变阶段",
+    "coreQuestion": "我能做什么？",
+    "relation": "应用、实践、改造世界",
+    "epistemology": "回到实践"
+  }
+]

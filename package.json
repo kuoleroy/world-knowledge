@@ -1,0 +1,11 @@
+{
+  "name": "world-knowledge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "世界知识门户 monorepo（apps/web + apps/api + apps/admin + packages/types）",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "lint:web": "pnpm --filter web lint"
+  }
+}

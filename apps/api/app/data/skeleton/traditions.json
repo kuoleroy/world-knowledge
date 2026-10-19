@@ -1,0 +1,7 @@
+[
+  { "id": "empirical", "displayName": "实证科学", "meaning": "实验、可证伪、还原（现代科学线，默认）" },
+  { "id": "holistic", "displayName": "整体·生命", "meaning": "系统、平衡、天人（中医、阿育吠陀、藏医、伊斯兰医学…）" },
+  { "id": "experiential", "displayName": "经验·乡土", "meaning": "实践、口传、生态适应（民间草药、助产、工匠…）" },
+  { "id": "speculative", "displayName": "思辨·哲学", "meaning": "逻辑、伦理、形而上" },
+  { "id": "devotional", "displayName": "信仰·修行", "meaning": "宗教、灵性、仪式" }
+]

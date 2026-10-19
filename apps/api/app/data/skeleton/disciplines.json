@@ -1,0 +1,14 @@
+[
+  { "id": "language_communication", "displayName": "Language & Communication", "nameZh": "语言与沟通" },
+  { "id": "thinking_humanities", "displayName": "Thinking & Humanities", "nameZh": "思维与人文" },
+  { "id": "education_development", "displayName": "Education & Human Development", "nameZh": "教育与人的发展" },
+  { "id": "society_governance", "displayName": "Society & Governance", "nameZh": "社会与治理" },
+  { "id": "economy_business", "displayName": "Economy & Business", "nameZh": "经济与商业" },
+  { "id": "math_natural_sciences", "displayName": "Math & Natural Sciences", "nameZh": "数学与自然科学" },
+  { "id": "information_computing", "displayName": "Information & Computing", "nameZh": "信息与计算" },
+  { "id": "engineering_construction", "displayName": "Engineering & Construction", "nameZh": "工程与建造" },
+  { "id": "agriculture_food", "displayName": "Agriculture & Food", "nameZh": "农业与食品" },
+  { "id": "health_medicine", "displayName": "Health & Medicine", "nameZh": "健康与医学" },
+  { "id": "defense_security", "displayName": "Defense & Security", "nameZh": "国防与安全" },
+  { "id": "life_experience", "displayName": "Life & Experience", "nameZh": "生活与体验" }
+]

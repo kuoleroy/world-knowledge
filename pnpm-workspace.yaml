@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 11 构建脚本审批（从 apps/web 脚手架生成的配置上提至根，避免子目录成为独立 workspace）
+allowBuilds:
+  sharp: false
+  unrs-resolver: false

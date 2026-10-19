@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.local
+.env.*.local
+
+# 测试 / 缓存
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node（前端占位）
+node_modules/
+dist/
+build/
+out/
+.next/
+*.tsbuildinfo
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
