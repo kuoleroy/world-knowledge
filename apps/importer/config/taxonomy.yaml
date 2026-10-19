@@ -99,8 +99,8 @@ disciplines:
       - { qid: Q133981, expect_zh: 急救, tradition: empirical, limit: 4, min_sitelinks: 6 }
       - { qid: Q133805, expect_zh: 流行病学, tradition: empirical, limit: 5, min_sitelinks: 8 }
       - { qid: Q179661, expect_zh: 疗法, tradition: empirical, limit: 5, min_sitelinks: 6 }
-      - { qid: Q1773974, expect_zh: 預防醫學, tradition: empirical, limit: 5, min_sitelinks: 6 }
-      - { qid: Q2752427, expect_zh: 医学研究, tradition: empirical, limit: 5, min_sitelinks: 5, stage: research, include_subclasses: true }
+      - { qid: Q1773974, expect_zh: 预防医学, tradition: empirical, limit: 5, min_sitelinks: 6 }
+      - { qid: Q2752427, expect_zh: 生物医学研究, tradition: empirical, limit: 5, min_sitelinks: 5, stage: research, include_subclasses: true }
       - { qid: Q691640, expect_zh: 循证医学, tradition: empirical, limit: 4, min_sitelinks: 4 }
       - { qid: Q514, expect_zh: 解剖学, tradition: empirical, limit: 5, min_sitelinks: 10 }
       - { qid: Q7208, expect_zh: 病理学, tradition: empirical, limit: 4, min_sitelinks: 6 }
